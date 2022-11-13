@@ -9,8 +9,8 @@ import java.awt.event.ActionListener;
 public class TablesPanel extends BasePanel implements ActionListener {
 
 
-    public TablesPanel(BarFrame frame) {
-        super(frame);
+    public TablesPanel(BarFrame frame, Language language) {
+        super(frame, language);
 
         int buttonX = frame.getWidth() / 2 - 145;
         int buttonY = frame.getHeight() / 2 - 100;

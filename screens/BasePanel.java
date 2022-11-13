@@ -6,9 +6,11 @@ import java.awt.*;
 
 public class BasePanel extends JPanel {
     public BarFrame frame;
+    public Language language;
 
-    public BasePanel(BarFrame frame){
+    public BasePanel(BarFrame frame, Language language){
         this.frame = frame;
+        this.language = language;
 
         setLayout(null);
         setBackground(Color.gray);

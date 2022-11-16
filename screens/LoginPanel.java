@@ -1,6 +1,7 @@
 package screens;
 
 import frames.BarFrame;
+import models.UserType;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,8 +13,10 @@ public class LoginPanel extends BasePanel {
     public JButton loginButton;
     public JButton englishButton;
     public JButton bulgarianButton;
-    public LoginPanel(BarFrame frame, Language language) {
-        super(frame, language);
+
+
+    public LoginPanel(BarFrame frame) {
+        super(frame);
 
         welcomeLabel = new JLabel();
         welcomeLabel.setBounds(frame.getWidth() / 2 - 150, 100, 300, 50);
@@ -35,7 +38,9 @@ public class LoginPanel extends BasePanel {
         loginButton.setBounds(frame.getWidth() / 2 - 50, pinField.getY() + 50, 100, 40); //buttons not more than 40 height
         loginButton.addActionListener(e -> {
             if (frame.dataProvider.isCorrectLogin(pinField.getText())) {
-                frame.router.showTables();
+                if (frame.dataProvider.loggedUser.getType() == UserType.MANAGER)  //каша
+                    frame.router.showUsersPanel();
+                else frame.router.showTables();
             } else {
                 showError("Грешна парола. Моля, въведете Вашата парола отново!");   // иф за езиците
             }
@@ -44,31 +49,26 @@ public class LoginPanel extends BasePanel {
 
         englishButton = new JButton("EN");
         englishButton.setBounds(frame.getWidth() / 2 - 100, loginButton.getY() + 50, 100, 40);
-        englishButton.addActionListener(e -> {
-            englishLanguageAction();
-
-        });
+        englishButton.addActionListener(e -> englishLanguageAction());
         add(englishButton);
 
         bulgarianButton = new JButton("BG");
         bulgarianButton.setBounds(englishButton.getX() + 100, loginButton.getY() + 50, 100, 40);
-        bulgarianButton.addActionListener(e -> {
-            bulgarianLanguageActon();
-        });
+        bulgarianButton.addActionListener(e -> bulgarianLanguageActon());
         add(bulgarianButton);
 
         bulgarianLanguageActon();
 
     }
 
-    public void englishLanguageAction(){
+    public void englishLanguageAction() {
         welcomeLabel.setText("Bar Zanzibar login");
         enterPassLabel.setText("Enter password");
         pinField.setText("Enter PIN");
         loginButton.setText("Enter");
     }
 
-    public void bulgarianLanguageActon(){
+    public void bulgarianLanguageActon() {
         welcomeLabel.setText("Бар Zanzibar вписване");
         enterPassLabel.setText("Въведи парола");
         pinField.setText("Въведи парола");

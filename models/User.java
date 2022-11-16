@@ -7,8 +7,7 @@ public class User {
     private String phoneNumber;
     private UserType type;
 
-    public User(String uin, String name, String pinCode, String phoneNumber, UserType type) {
-        this.uin = uin;
+    public User(String name, String pinCode, String phoneNumber, UserType type) {
         this.name = name;
         this.pinCode = pinCode;
         this.phoneNumber = phoneNumber;
@@ -45,6 +44,13 @@ public class User {
 
     public void setType(UserType type) {
         this.type = type;
+    }
+
+    public String getUserRole() {
+        if(this.type == UserType.MANAGER) {
+            return "Мениджър";
+        } else
+            return "Сервитьор";
     }
 }
 

@@ -4,6 +4,7 @@ import javax.swing.*;
 
 public class BarFrame extends JFrame {
 
+
     public BarRouter router;
     public BarDataProvider dataProvider;
     public BarFrame(){

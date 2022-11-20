@@ -5,6 +5,7 @@ package frames;
 import models.Product;
 import models.User;
 import models.UserType;
+import screens.LoginPanel;
 import screens.UsersPanel;
 import screens.BasePanel;
 
@@ -99,7 +100,6 @@ public class BarDataProvider {
 
     public void deleteAction(BasePanel basePanel, UsersPanel adminPanel, DefaultTableModel usersTableModelBase) {
 
-        // !!!!!!!!!!!!!!!!!!!! тук трябва да го редактираме, защото когато търсим,
         // Търсенияте е нулевия индекс и така ще изтриема първия от арея,
         // а не селектирания!!!!!!
         // ако търсим ще трябва да вземем от арей листа SearchedUsers Петко -
@@ -111,7 +111,7 @@ public class BarDataProvider {
         }
         boolean isYes = basePanel.showQuestion("Сигуни ли сте, че искате да изтриете този потебител?");
         if (isYes) {
-            ArrayList<User> activeUserList = new ArrayList<>();
+            ArrayList<User> activeUserList;
             if (isSearchingUsers) {
                 activeUserList = searchedUsers;
             } else {

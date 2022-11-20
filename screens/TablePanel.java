@@ -1,6 +1,7 @@
 package screens;
 
 import frames.BarFrame;
+import models.Language;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -8,7 +9,7 @@ import java.awt.event.ActionListener;
 
 public class TablePanel extends BasePanel implements ActionListener {
 
-
+    public JButton cancelButton;
     public TablePanel(BarFrame frame) {
         super(frame);
 
@@ -30,12 +31,18 @@ public class TablePanel extends BasePanel implements ActionListener {
             buttonX += 120; //60
 
         }
-
-        // exitButton
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        String tableNumberString = ((JButton)e.getSource()).getText();
+        int tableNumber = Integer.parseInt(tableNumberString);
 
+        frame.router.showOrdersPanel(tableNumber);
+    }
+
+    @Override
+    public String toString() {
+        return "TablePanel";
     }
 }

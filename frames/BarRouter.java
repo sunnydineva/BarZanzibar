@@ -2,14 +2,11 @@ package frames;
 
 //navigation and group methods
 
-import screens.UsersPanel;
-import screens.Language;
-import screens.LoginPanel;
-import screens.TablePanel;
+import models.Language;
+import screens.*;
 
 public class BarRouter {
     public BarFrame frame;
-    public Language language;
 
     public BarRouter(BarFrame frame) {
         this.frame = frame;
@@ -37,6 +34,14 @@ public class BarRouter {
 
 
     public void showManagerPanel(){
+        ManagerPanel panel = new ManagerPanel(frame);
+        this.frame.setContentPane(panel);
+        this.frame.validate();
+    }
 
+    public void showOrdersPanel(int tableNumber) {
+        OrdersPanel panel = new OrdersPanel(frame, tableNumber);
+        this.frame.setContentPane(panel);
+        this.frame.validate();
     }
 }

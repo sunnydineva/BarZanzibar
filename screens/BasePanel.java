@@ -1,27 +1,117 @@
 package screens;
 
 import frames.BarFrame;
+import frames.BarLanguages;
+import models.Language;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class BasePanel extends JPanel {
     public BarFrame frame;
-    //public Language language;
+    public String title;
+    public LoginPanel loginPanel;
+    public JButton cancelButton;
+    public JButton bulgarianButton;
+    public JButton englishButton;
+    public Language language;
+    public static int elementWidth;
+    public static int elementHeight;
 
-    //public BasePanel(BarFrame frame, Language language){
-    public BasePanel(BarFrame frame){
+    public BasePanel(BarFrame frame) {
         this.frame = frame;
-        //this.language = language;
+        this.language = frame.language;
 
         setLayout(null);
         setBackground(Color.gray);
+
+        //elementWidth = (frame.getWidth() - 32) / 3;
+        elementWidth = (frame.getWidth()) / 3;
+        elementHeight = 40; //buttons not more than 40 height
+
+        initializeBaseButtons();
+
+        System.out.println("Language of BasePanel: " + this.language);
+
+
+        if (language == Language.BULGARIAN) {
+            baseBulgarianLanguage();
+        } else baseEnglishLanguage();
+
+
     }
 
-    public void showError(String message){
-        JOptionPane.showMessageDialog(null, message, "ERROR", JOptionPane.ERROR_MESSAGE);
+
+    public void initializeBaseButtons() {
+        cancelButton = new JButton("Cancel");
+        cancelButton.setBounds(frame.getWidth() / 2 - elementWidth / 2, frame.getHeight() - 150,
+                elementWidth, elementHeight);
+        cancelButton.addActionListener(e -> frame.router.showLogin());
+        add(cancelButton);
+
+        englishButton = new JButton("EN");
+        englishButton.setBounds(cancelButton.getX(), frame.getHeight() - 100,
+                elementWidth / 2, elementHeight);
+        englishButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.currentLanguage.englishLanguageAction();
+                reopenPanel();
+
+            }
+        });
+        add(englishButton);
+
+        bulgarianButton = new JButton("BG");
+        bulgarianButton.setBounds(englishButton.getX() + englishButton.getWidth(), englishButton.getY(),
+                elementWidth / 2, elementHeight);
+        bulgarianButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.currentLanguage.bulgarianLanguageActon();
+                reopenPanel();
+            }
+        });
+        add(bulgarianButton);
+
+
     }
-    public boolean showQuestion(String message){ //nz dali e taka
-        int result = JOptionPane.showConfirmDialog(null, message, "Внимание",
+
+    public void reopenPanel() {
+        if (frame.getContentPane().toString().equals("LoginPanel")) {
+            frame.router.showLogin();
+        } else if (frame.getContentPane().toString().equals("ManagerPanel")) {
+            frame.router.showManagerPanel();
+        } else if (frame.getContentPane().toString().equals("TablePanel")) {
+            frame.router.showTables();
+        } else if (frame.getContentPane().toString().equals("UsersPanel")) {
+            frame.router.showUsersPanel();
+        }
+
+ /*
+        } else if (frame.getContentPane().toString().equals("OrdersPanel")){
+            frame.router.showOrdersPanel(); //не мога да подам номер на маса
+        }
+ */
+
+    }
+
+    public void baseEnglishLanguage() {
+        cancelButton.setText("Cancel");
+    }
+
+    public void baseBulgarianLanguage() {
+        cancelButton.setText("Отказ");
+    }
+
+    public void showError(String message) {
+        JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public boolean showQuestion(String message) {
+        int result = JOptionPane.showConfirmDialog(null, message, "Attention",
                 JOptionPane.YES_NO_OPTION);
         return result == JOptionPane.YES_OPTION;
 

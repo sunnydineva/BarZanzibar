@@ -1,6 +1,7 @@
 package screens;
 
 import frames.BarFrame;
+import models.Language;
 import models.UserType;
 
 import javax.swing.*;
@@ -14,13 +15,13 @@ public class UsersPanel extends BasePanel {
     private JTextField nameField;
     private JTextField pinField;
     private JTextField phoneField;
+    private JTextField searchField;
+    private JButton addButton;
+    private JButton deleteButton;
     public JComboBox<String> typeComboBox;
     public DefaultTableModel usersTableModel;
     public JTable usersTable;
-
-    //public AdminPanel(BarFrame frame, Language language) {
     public UsersPanel(BarFrame frame) {
-        //super(frame, language);
         super(frame);
 
         String[] columns = {"Име", "ПИН", "Телефон", "Тип"};
@@ -39,77 +40,53 @@ public class UsersPanel extends BasePanel {
         initializeButtons();
         initializeSearchField();
 
-    }
-/*
-    public void adduserAction() { // да отиде в Datarpvders
-        //validations
+        if (language == Language.BULGARIAN) {
+            bulgarianLanguage();
+        } else englishLanguage();
 
-        User newUser = new User(nameField.getText(), pinField.getText(), phoneField.getText(),selectedType);
-        frame.dataProvider.users.add(newUser);
-        frame.dataProvider.fetchUsers(usersTableModel);
+
     }
 
-    public void deleteAction() { // да отиде в DataProviders
-        if (usersTable.getSelectedRow() < 0) {
-            showError("Нямате избран потебител");
-            return; //нямаме селектиран ред
-        }
-        boolean isYes = showQuestion("Сигуни ли сте, че искате да изтриете този потебител?");
-
-        User selectedUser = frame.dataProvider.users.get(usersTable.getSelectedRow());
-        if (selectedUser.getPhoneNumber().equals((frame.dataProvider.loggedUser.getPhoneNumber()))) {
-            showError("Не може да изтриете текущия потебител");
-            return;
-        }
-        frame.dataProvider.users.remove(usersTable.getSelectedRow());
-        frame.dataProvider.fetchUsers(usersTableModel);
-    }
-
- */
-
-    public void initializeButtons() {
-        JButton deleteButton = new JButton("Изтрий"); //уволняваме
-        deleteButton.setBounds(frame.getWidth() / 2 + 160, 230, 150, 40);
-        deleteButton.addActionListener(e -> frame.dataProvider.deleteAction(this, this, usersTableModel));
-        add(deleteButton);
-
-        JButton exitButton = new JButton("Изход");
-        exitButton.setBounds(frame.getWidth() / 2 + 160, deleteButton.getY() + 50, 150, 40);
-      //  exitButton.addActionListener(e -> frame.router.showLogin();  ?????????????????
-        add(exitButton);
-
-        JButton addButton = new JButton("Добави");
-        selectedType = null;
-        addButton.setBounds(150 + 20, phoneField.getY() + 50, 150, 40);
-        addButton.addActionListener(e -> {
-            //      selectedType = typeComboBox.getSelectedIndex() == 0 ? UserType.MANAGER : UserType.WAITRESS; //0-MANAGER, 1-WAITRESS
-            frame.dataProvider.adduserAction(this, usersTableModel);
-        });
-        add(addButton);
-    }
 
     public void initializeFields() {
         nameField = new JTextField("Име");
-        nameField.setBounds(8, 230, 150, 40);
+        nameField.setBounds(0, 230, elementWidth, 40);
         add(nameField);
 
         pinField = new JTextField("ПИН");
-        pinField.setBounds(8, nameField.getY() + 50, 150, 40);
+        pinField.setBounds(0, nameField.getY() + 50, elementWidth, 40);
         add(pinField);
 
         phoneField = new JTextField("Телефон");
-        phoneField.setBounds(8, pinField.getY() + 50, 150, 40);
+        phoneField.setBounds(0, pinField.getY() + 50, elementWidth, 40);
         add(phoneField);
 
         String[] options = {"Мениджър", "Сервитьор"};
         typeComboBox = new JComboBox<>(options);
-        typeComboBox.setBounds(8, phoneField.getY() + 50, 150, 40);
+        typeComboBox.setBounds(0, phoneField.getY() + 50, elementWidth, 40);
         add(typeComboBox);
 
     }
 
+    public void initializeButtons() {
+        deleteButton = new JButton("Изтрий"); //уволняваме
+        deleteButton.setBounds(frame.getWidth() / 2 - elementWidth / 2, 230 + 50,
+                elementWidth, 40);
+        deleteButton.addActionListener(e -> frame.dataProvider.deleteAction(this, this, usersTableModel));
+        add(deleteButton);
+
+       addButton = new JButton("Добави");
+        selectedType = null;
+        addButton.setBounds(0, 230 + 160 + 40, elementWidth, 40);
+        addButton.addActionListener(e -> {
+            frame.dataProvider.adduserAction(this, usersTableModel);
+        });
+        add(addButton);
+
+    }
+
     public void initializeSearchField() {
-        JTextField searchField = new JTextField("");
+        searchField = new JTextField("Име");
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -117,7 +94,6 @@ public class UsersPanel extends BasePanel {
                 frame.dataProvider.isSearchingUsers = true;
                 frame.dataProvider.searchUsers(searchField.getText());
                 frame.dataProvider.fetchUsers(usersTableModel);
-
             }
 
             @Override
@@ -129,14 +105,37 @@ public class UsersPanel extends BasePanel {
                 frame.dataProvider.fetchUsers(usersTableModel);
             }
 
-
             @Override
             public void changedUpdate(DocumentEvent e) { //когато нещо се промени визуално по текстовото поле
 
             }
         });
-        searchField.setBounds(frame.getWidth() / 2, 230, 150, 40);
+        searchField.setBounds(frame.getWidth() / 2 - elementWidth / 2, 230, elementWidth, 40);
         add(searchField);
+    }
+
+    public void bulgarianLanguage(){
+    /* разваля ми fetchUsers
+        nameField.setText("Име");
+        phoneField.setText("Телефон");
+        pinField.setText("ПИН");
+        searchField.setText("Търсено име");
+    */
+
+        addButton.setText("Добави");
+        deleteButton.setText("Изтрий");
+
+    }
+    public void englishLanguage(){
+    /*
+        nameField.setText("Name");
+        phoneField.setText("Phone");
+        pinField.setText("PIN");
+        searchField.setText("Searched name");
+
+     */
+        addButton.setText("Add");
+        deleteButton.setText("Remove");
     }
 
     public UserType getSelectedType() {
@@ -193,6 +192,11 @@ public class UsersPanel extends BasePanel {
 
     public void setUsersTable(JTable usersTable) {
         this.usersTable = usersTable;
+    }
+
+    @Override
+    public String toString() {
+        return "UsersPanel";
     }
 }
 

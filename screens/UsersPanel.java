@@ -24,6 +24,19 @@ public class UsersPanel extends BasePanel {
     public UsersPanel(BarFrame frame) {
         super(frame);
 
+
+        initializeUsersTable();
+        initializeFields();
+        initializeButtons();
+        initializeSearchField();
+
+        if (language == Language.BULGARIAN) {
+            bulgarianLanguage();
+        } else englishLanguage();
+
+
+    }
+    public void initializeUsersTable(){
         String[] columns = {"Име", "ПИН", "Телефон", "Тип"};
         usersTableModel = new DefaultTableModel();
         usersTableModel.setColumnIdentifiers(columns);
@@ -35,16 +48,6 @@ public class UsersPanel extends BasePanel {
         add(usersTablePane);
 
         frame.dataProvider.fetchUsers(usersTableModel); //при отварянето да запълни таблицата
-
-        initializeFields();
-        initializeButtons();
-        initializeSearchField();
-
-        if (language == Language.BULGARIAN) {
-            bulgarianLanguage();
-        } else englishLanguage();
-
-
     }
 
 
@@ -72,7 +75,7 @@ public class UsersPanel extends BasePanel {
         deleteButton = new JButton("Изтрий"); //уволняваме
         deleteButton.setBounds(frame.getWidth() / 2 - elementWidth / 2, 230 + 50,
                 elementWidth, 40);
-        deleteButton.addActionListener(e -> frame.dataProvider.deleteAction(this, this, usersTableModel));
+        deleteButton.addActionListener(e -> frame.dataProvider.deleteUserAction(this, this, usersTableModel));
         add(deleteButton);
 
        addButton = new JButton("Добави");

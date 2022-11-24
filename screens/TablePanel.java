@@ -8,12 +8,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class TablePanel extends BasePanel implements ActionListener {
-
-    public JButton cancelButton;
     public TablePanel(BarFrame frame) {
         super(frame);
 
-        int buttonX = frame.getWidth() / 2 - 290; // 145 = (5*50+40) /2  290 = (5*100+80)/2
+        int buttonX = frame.getWidth() / 2 - 290; //  290 = (5*100+80)/2
         int buttonY = frame.getHeight() / 2 - 160; // 100
 
         for (int i = 0; i < frame.dataProvider.tables.size(); i++) {

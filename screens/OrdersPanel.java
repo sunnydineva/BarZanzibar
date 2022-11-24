@@ -1,12 +1,15 @@
 package screens;
 
 import frames.BarFrame;
+import models.Category;
 import models.Language;
 import models.Order;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class OrdersPanel extends BasePanel {
     public int selectedTableNumber;
@@ -31,17 +34,14 @@ public class OrdersPanel extends BasePanel {
         initializeOrdersTable();
         initializeProductsTable();
         initializeFooter();
-/*
+
         if (language == Language.BULGARIAN) {
             bulgarianLanguage();
         } else englishLanguage();
+
+        frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
         
- */
-
-
-
-
-    }
+     }
 
     public void initializeHeader() {
         createButton = new JButton("Създай");
@@ -73,9 +73,42 @@ public class OrdersPanel extends BasePanel {
         ordersTableModel.setColumnIdentifiers(cols);
 
         ordersTable = new JTable(ordersTableModel);
+
         JScrollPane ordersPane  = new JScrollPane(ordersTable);
         ordersPane.setBounds(0, 60, elementWidth, frame.getHeight()- 60 - 100 - 10);
         add(ordersPane);
+        frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
+
+    }
+
+    public void initializeProductsButtons(){
+        int buttonY = 200;
+        for (Category category : frame.dataProvider.categories) {
+            JButton button = new JButton(category.title);
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    //да махна тези бутони
+
+                    initializeSubProductsButtons(); //да направя да взима подтип от селектирания бутон
+
+                }
+            });
+            button.setBounds(frame.getWidth()/2 - elementWidth/2, buttonY, elementWidth, 40);
+            add(button);
+            buttonY += 40;
+        }
+    }
+    public void initializeSubProductsButtons(){
+        int buttonY = 200;
+        for (String subCategory : frame.dataProvider.subCategoriesA) {
+            JButton button = new JButton(subCategory);
+            //button.addActionListener();
+            button.setBounds(frame.getWidth()/2 - elementWidth/2, buttonY, elementWidth, 40);
+            add(button);
+            buttonY += 40;
+        }
     }
 
     public void initializeProductsTable(){
@@ -97,14 +130,12 @@ public class OrdersPanel extends BasePanel {
 
     public void createOrder(){
         boolean isYes = showQuestion(createOrderMessage);
-        if(isYes){
-            Order order = new Order("1", selectedTableNumber, frame.dataProvider.loggedUser);
-            frame.dataProvider.orders.add(order);
-            System.out.println("@");
-            frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
+        if(isYes) {
+            frame.dataProvider.createOrderAction(selectedTableNumber, ordersTableModel);
+            // ДА СЕ СЕЛЕКТИРА
+            initializeProductsButtons();
         }
     }
-
 
     public void bulgarianLanguage() {
         table = "Маса: ";
@@ -113,7 +144,6 @@ public class OrdersPanel extends BasePanel {
         finishButton.setText("Приключи");
 
         createOrderMessage = "Отваряне на нова поръчка?";
-
 
     }
 

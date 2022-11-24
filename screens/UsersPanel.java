@@ -115,25 +115,26 @@ public class UsersPanel extends BasePanel {
     }
 
     public void bulgarianLanguage(){
-    /* разваля ми fetchUsers
+
+/* така или иначе при отваряне ми излиза на BULGARIAN
         nameField.setText("Име");
         phoneField.setText("Телефон");
         pinField.setText("ПИН");
         searchField.setText("Търсено име");
-    */
 
         addButton.setText("Добави");
         deleteButton.setText("Изтрий");
-
+*/
     }
     public void englishLanguage(){
-    /*
+/* незнайно защо ми разваля fetchUsers - не ми пълни при стартиране таблицата ??????????????????????????
         nameField.setText("Name");
         phoneField.setText("Phone");
         pinField.setText("PIN");
         searchField.setText("Searched name");
 
-     */
+ */
+
         addButton.setText("Add");
         deleteButton.setText("Remove");
     }

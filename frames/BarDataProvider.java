@@ -2,6 +2,7 @@ package frames;
 
 //ArrayLists, Data methods
 
+import models.Order;
 import models.Product;
 import models.User;
 import models.UserType;
@@ -16,6 +17,7 @@ public class BarDataProvider {
 
     public ArrayList<User> users;
     public ArrayList<User> searchedUsers;
+    public ArrayList<Order> orders;
 
     public ArrayList<Integer> tables;
     public ArrayList<Product> products;
@@ -24,6 +26,8 @@ public class BarDataProvider {
     public boolean isSearchingUsers;
 
     public BarDataProvider() {
+        orders = new ArrayList<>();
+
         users = new ArrayList<>();
         User user1 = new User("Sunny", "9999", "0899044806", UserType.MANAGER);
         User user2 = new User("Bunny", "8888", "0899044807", UserType.WAITRESS);
@@ -31,6 +35,7 @@ public class BarDataProvider {
         users.add(user1);
         users.add(user2);
         users.add(user3);
+
 
         tables = new ArrayList<>();
         tables.add(11);
@@ -81,6 +86,20 @@ public class BarDataProvider {
         for (User user : users) {
             if (user.getName().toLowerCase().contains(searchedText.toLowerCase())) {
                 searchedUsers.add(user); //добавям в дублирания арей
+            }
+        }
+    }
+    public void fetchOrders(DefaultTableModel model, int tableNumber){
+        model.setColumnCount(0);
+        for (int i = 0; i <orders.size() ; i++) {
+            Order order = orders.get(i);
+            if (order.getTableNumber() == tableNumber){
+                System.out.println("равни са");
+                String row[] = new String[3];
+                row[0] = Integer.toString(i+1);
+                row[1] = order.getProductsCount();
+                row[2] = order.getTotalPrice(false);
+                model.addRow(row);
             }
         }
 

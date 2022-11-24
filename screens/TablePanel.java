@@ -36,9 +36,9 @@ public class TablePanel extends BasePanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         String tableNumberString = ((JButton)e.getSource()).getText();
-        int tableNumber = Integer.parseInt(tableNumberString);
+        selectedTableNumber = Integer.parseInt(tableNumberString);
 
-        frame.router.showOrdersPanel(tableNumber);
+        frame.router.showOrdersPanel(selectedTableNumber);
     }
 
     @Override

@@ -9,10 +9,10 @@ public class Order {
     private User waitress;
     private int percentDiscount;
 
-    public Order(String uid, int tableNumber, ArrayList<Product> products, User waitress) {
+    public Order(String uid, int tableNumber, User waitress) {
         this.uid = uid;
         this.tableNumber = tableNumber;
-        this.products = products;
+        this.products = new ArrayList<>();
         this.waitress = waitress;
     }
 

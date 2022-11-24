@@ -11,14 +11,13 @@ import java.awt.event.ActionListener;
 
 public class BasePanel extends JPanel {
     public BarFrame frame;
-    public String title;
-    public LoginPanel loginPanel;
     public JButton cancelButton;
     public JButton bulgarianButton;
     public JButton englishButton;
     public Language language;
     public static int elementWidth;
     public static int elementHeight;
+    public static int selectedTableNumber;
 
     public BasePanel(BarFrame frame) {
         this.frame = frame;
@@ -89,12 +88,10 @@ public class BasePanel extends JPanel {
         } else if (frame.getContentPane().toString().equals("UsersPanel")) {
             frame.router.showUsersPanel();
         }
-
- /*
-        } else if (frame.getContentPane().toString().equals("OrdersPanel")){
-            frame.router.showOrdersPanel(); //не мога да подам номер на маса
+         else if (frame.getContentPane().toString().equals("OrdersPanel")){
+            frame.router.showOrdersPanel(selectedTableNumber);
         }
- */
+
 
     }
 

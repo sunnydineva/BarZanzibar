@@ -24,8 +24,6 @@ public class LoginPanel extends BasePanel {
         cancelButton.setVisible(false);
         initializeElements();
 
-        System.out.println("Language of LoginPanel: " + this.language);
-
         if (language == Language.BULGARIAN) {
             bulgarianLanguage();
         } else englishLanguage();

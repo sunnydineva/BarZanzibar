@@ -32,9 +32,6 @@ public class BasePanel extends JPanel {
 
         initializeBaseButtons();
 
-        System.out.println("Language of BasePanel: " + this.language);
-
-
         if (language == Language.BULGARIAN) {
             baseBulgarianLanguage();
         } else baseEnglishLanguage();

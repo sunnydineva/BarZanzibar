@@ -3,7 +3,6 @@ package frames;
 //ArrayLists, Data methods
 
 import models.*;
-import screens.LoginPanel;
 import screens.UsersPanel;
 import screens.BasePanel;
 
@@ -19,14 +18,14 @@ public class BarDataProvider {
 
     public ArrayList<Integer> tables;
     public ArrayList<Product> products;
-    public ArrayList<Category> categories;
-    public ArrayList<String> subCategoriesA; //alcohol subcategories
+    public ArrayList<Category> categories; //for JButtons
+    public ArrayList<String> subCategories; //for JButtons
+    public ArrayList<String> productBrands; //for JButtons
 
     public User loggedUser;
     public boolean isSearchingUsers;
 
     public BarDataProvider() {
-
 
         orders = new ArrayList<>();
 
@@ -44,6 +43,129 @@ public class BarDataProvider {
             tables.add(i + 11);
         }
 
+        getProducts();
+
+
+    }
+
+    public void isUniquePIN() {
+        // при логване да не ми се повтаря ПИН-а
+    }
+
+    public boolean isCorrectLogin(String pin) {
+        for (User user : users) {
+            if ((user.getPinCode().equals(pin))) {
+                loggedUser = user;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void fetchUsers(DefaultTableModel model) { //рефреш на таблицата; прави редове
+        model.setRowCount(0); //занулява таблицата, иначе се наслояват една под друга
+        ArrayList<User> activeUserList;
+        if (isSearchingUsers) {
+            activeUserList = new ArrayList<>(searchedUsers);
+        } else {
+            activeUserList = new ArrayList<>(users);
+        }
+        for (User user : activeUserList) {
+            String[] row = new String[4]; // на реда имаме 4 стойности - име, пин, телефон, тип
+            row[0] = user.getName();
+            row[1] = user.getPinCode();
+            row[2] = user.getPhoneNumber();
+            row[3] = user.getUserRole(); //userType в String
+            model.addRow(row);
+
+        }
+    }
+
+    public void searchUsers(String searchedText) {
+        searchedUsers = new ArrayList<>();
+        for (User user : users) {
+            if (user.getName().toLowerCase().contains(searchedText.toLowerCase())) {
+                searchedUsers.add(user); //добавям в дублирания арей
+            }
+        }
+    }
+
+    public void fetchOrders(DefaultTableModel model, int tableNumber) {
+        model.setRowCount(0);
+        for (int i = 0; i < orders.size(); i++) {
+            Order order = orders.get(i);
+            if (order.getTableNumber() == tableNumber) {
+
+                String row[] = new String[3];
+
+                row[0] = Integer.toString(i + 1);
+                row[1] = order.getProductsCount();
+                row[2] = order.getTotalPrice(false);
+                model.addRow(row);
+            }
+        }
+    }
+
+    public void createOrderAction(int selectedTableNumber, DefaultTableModel ordersTableModel) {
+        Order order = new Order("1", selectedTableNumber, loggedUser);
+        orders.add(order);
+        fetchOrders(ordersTableModel, selectedTableNumber);
+    }
+
+    public void addProductAction(int selectedTableNumber, DefaultTableModel productsTableModel) {
+
+        System.out.println("добавям продукта в таблицата с продукти");
+
+    }
+
+    public void adduserAction(UsersPanel adminPanel, DefaultTableModel usersTableModel) {
+
+        //validations
+        UserType userType = adminPanel.typeComboBox.getSelectedIndex() == 0 ? UserType.MANAGER :
+                UserType.WAITRESS; //0-MANAGER, 1-WAITRESS
+        User newUser = new User(adminPanel.getNameField().getText(), adminPanel.getPinField().getText(),
+                adminPanel.getPhoneField().getText(), userType);
+        users.add(newUser);
+        fetchUsers(usersTableModel);
+    }
+
+
+    public void deleteUserAction(BasePanel basePanel, UsersPanel adminPanel, DefaultTableModel usersTableModelBase) {
+        // Търсенияте е нулевия индекс и така ще изтриема първия от арея, а не селектирания!!!!!!
+        // ако търсим ще трябва да вземем от арей листа SearchedUsers Петко -
+        // влизаме в оригиналния арей и изтриваме Петко, isSearchingUser = false, fetch
+
+        if (adminPanel.usersTable.getSelectedRow() < 0) {  //ако нямаме селектиран ред
+            basePanel.showError("Нямате избран потебител");
+            return;
+        }
+        boolean isYes = basePanel.showQuestion("Сигуни ли сте, че искате да изтриете този потебител?");
+        if (isYes) {
+            ArrayList<User> activeUserList;
+            if (isSearchingUsers) {
+                activeUserList = searchedUsers;
+            } else {
+                activeUserList = users;
+            }
+
+            User selectedUser = activeUserList.get(adminPanel.usersTable.getSelectedRow());
+            if (selectedUser.getPhoneNumber().equals((loggedUser.getPhoneNumber()))) { // защото нямаме id
+                basePanel.showError("Не може да изтриете текущия потебител");
+                return;
+            }
+            for (int i = 0; i < users.size(); i++) {
+                User user = users.get(i);
+                if (selectedUser.getPhoneNumber().equals(user.getPhoneNumber())) {
+                    users.remove(user);
+                }
+            }
+            isSearchingUsers = false;
+            fetchUsers(adminPanel.usersTableModel);
+        }
+
+    }
+
+    public ArrayList<Product> getProducts() {
         products = new ArrayList<>();
         Product p1 = new Product("1", ProductType.ALCOHOLIC, "уиски", "Johnie Walker", 6.47, 1);
         Product p2 = new Product("2", ProductType.ALCOHOLIC, "уиски", "Jack Daniels", 5.47, 1);
@@ -78,146 +200,54 @@ public class BarDataProvider {
         products.add(p14);
         products.add(p15);
         products.add(p16);
+        return products;
 
-        subCategoriesA = new ArrayList<>();  //for all the subTypes: уиски, водка и т.н. колкото ще има
+    }
+
+    public ArrayList<Category> getCategories() {
+        categories = new ArrayList<>();
+        Category c1 = new Category("Алкохоли", ProductType.ALCOHOLIC);
+        Category c2 = new Category("Безалкохолни", ProductType.NONALCOHOLIC);
+        Category c3 = new Category("Храни", ProductType.FOOD);
+        categories.add(c1);
+        categories.add(c2);
+        categories.add(c3);
+        return categories;
+    }
+
+    public ArrayList<String> getSubCategories(ProductType productCategory) {
+        subCategories = new ArrayList<>();  //for all the subTypes: уиски, водка и т.н. колкото ще има
+        ArrayList<String> subCategoriesTemp = new ArrayList<>();
         for (Product product : products) {
-            ArrayList<String> subCategoriesTemp = new ArrayList<>();
-            if (product.getType() == ProductType.ALCOHOLIC) {
+            if (product.getType() == productCategory) {
                 subCategoriesTemp.add(product.getSubType());
             }
-            for (String subCategory : subCategoriesTemp) {
-                if (!subCategoriesA.contains(subCategory)) {
-                    subCategoriesA.add(subCategory);
-                }
-            }
-
-
-            categories = new ArrayList<>();
-            Category c1 = new Category("Алкохоли", ProductType.ALCOHOLIC);
-            Category c2 = new Category("Безалкохолни", ProductType.NONALCOHOLIC);
-            Category c3 = new Category("Храни", ProductType.FOOD);
-            categories.add(c1);
-            categories.add(c2);
-            categories.add(c3);
-
         }
+        for (String subCategory : subCategoriesTemp) {
+            if (!subCategories.contains(subCategory)) {
+                subCategories.add(subCategory);
+            }
+        }
+
+        return subCategories;
     }
 
-        public void isUniquePIN() {
-            // при логване да не ми се повтаря ПИН-а
-        }
-
-        public boolean isCorrectLogin (String pin){
-            for (User user : users) {
-                if ((user.getPinCode().equals(pin))) {
-                    loggedUser = user;
-                    return true;
-                }
+    public ArrayList<String> getProductsBrands(String subType) {
+        productBrands = new ArrayList<>();  //for all the product brands, no duplicates
+        for (Product product : products) {
+            ArrayList<String> subProductsTemp = new ArrayList<>();
+            if (product.getSubType().equals(subType)) {
+                subProductsTemp.add(product.getBrand());
             }
-            return false;
-        }
-
-        public void fetchUsers (DefaultTableModel model){ //рефреш на таблицата; прави редове
-            model.setRowCount(0); //занулява таблицата, иначе се наслояват една под друга
-            ArrayList<User> activeUserList;
-            if (isSearchingUsers) {
-                activeUserList = new ArrayList<>(searchedUsers);
-            } else {
-                activeUserList = new ArrayList<>(users);
-            }
-            for (User user : activeUserList) {
-                String[] row = new String[4]; // на реда имаме 4 стойности - име, пин, телефон, тип
-                row[0] = user.getName();
-                row[1] = user.getPinCode();
-                row[2] = user.getPhoneNumber();
-                row[3] = user.getUserRole(); //userType в String
-                model.addRow(row);
-
-            }
-        }
-
-        public void searchUsers (String searchedText){
-            searchedUsers = new ArrayList<>();
-            for (User user : users) {
-                if (user.getName().toLowerCase().contains(searchedText.toLowerCase())) {
-                    searchedUsers.add(user); //добавям в дублирания арей
+            for (String tempProducts : subProductsTemp) {
+                if (!productBrands.contains(tempProducts)) {
+                    productBrands.add(tempProducts);
                 }
             }
         }
-
-        public void fetchOrders (DefaultTableModel model,int tableNumber){
-            model.setRowCount(0);
-            for (int i = 0; i < orders.size(); i++) {
-                Order order = orders.get(i);
-                if (order.getTableNumber() == tableNumber) {
-
-                    String row[] = new String[3];
-
-                    row[0] = Integer.toString(i + 1);
-                    row[1] = order.getProductsCount();
-                    row[2] = order.getTotalPrice(false);
-                    model.addRow(row);
-                }
-            }
-        }
-
-        public void createOrderAction ( int selectedTableNumber, DefaultTableModel ordersTableModel){
-            Order order = new Order("1", selectedTableNumber, loggedUser);
-            orders.add(order);
-            fetchOrders(ordersTableModel, selectedTableNumber);
-        }
-
-    public void addProductAction ( int selectedTableNumber, DefaultTableModel productsTableModel){
-
-        System.out.println("добавям продукта в таблицата с продукти");
-
+        return productBrands;
     }
 
-        public void adduserAction (UsersPanel adminPanel, DefaultTableModel usersTableModel){
-
-            //validations
-            UserType userType = adminPanel.typeComboBox.getSelectedIndex() == 0 ? UserType.MANAGER :
-                    UserType.WAITRESS; //0-MANAGER, 1-WAITRESS
-            User newUser = new User(adminPanel.getNameField().getText(), adminPanel.getPinField().getText(),
-                    adminPanel.getPhoneField().getText(), userType);
-            users.add(newUser);
-            fetchUsers(usersTableModel);
-        }
+}
 
 
-        public void deleteUserAction (BasePanel basePanel, UsersPanel adminPanel, DefaultTableModel usersTableModelBase) {
-            // Търсенияте е нулевия индекс и така ще изтриема първия от арея, а не селектирания!!!!!!
-            // ако търсим ще трябва да вземем от арей листа SearchedUsers Петко -
-            // влизаме в оригиналния арей и изтриваме Петко, isSearchingUser = false, fetch
-
-            if (adminPanel.usersTable.getSelectedRow() < 0) {  //ако нямаме селектиран ред
-                basePanel.showError("Нямате избран потебител");
-                return;
-            }
-            boolean isYes = basePanel.showQuestion("Сигуни ли сте, че искате да изтриете този потебител?");
-            if (isYes) {
-                ArrayList<User> activeUserList;
-                if (isSearchingUsers) {
-                    activeUserList = searchedUsers;
-                } else {
-                    activeUserList = users;
-                }
-
-                User selectedUser = activeUserList.get(adminPanel.usersTable.getSelectedRow());
-                if (selectedUser.getPhoneNumber().equals((loggedUser.getPhoneNumber()))) { // защото нямаме id
-                    basePanel.showError("Не може да изтриете текущия потебител");
-                    return;
-                }
-                for (int i = 0; i < users.size(); i++) {
-                    User user = users.get(i);
-                    if (selectedUser.getPhoneNumber().equals(user.getPhoneNumber())) {
-                        users.remove(user);
-                    }
-                }
-                isSearchingUsers = false;
-                fetchUsers(adminPanel.usersTableModel);
-            }
-
-
-        }
-    }

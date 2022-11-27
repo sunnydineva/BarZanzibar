@@ -26,7 +26,9 @@ public class BasePanel extends JPanel {
         setLayout(null);
         setBackground(Color.gray);
 
+
         //elementWidth = (frame.getWidth() - 32) / 3;
+        //elementWidth = Integer.parseInt(String.valueOf(Math.round(frame.getWidth() / 3.0)));
         elementWidth = (frame.getWidth()) / 3;
         elementHeight = 40; //buttons not more than 40 height
 
@@ -84,8 +86,7 @@ public class BasePanel extends JPanel {
             frame.router.showTables();
         } else if (frame.getContentPane().toString().equals("UsersPanel")) {
             frame.router.showUsersPanel();
-        }
-         else if (frame.getContentPane().toString().equals("OrdersPanel")){
+        } else if (frame.getContentPane().toString().equals("OrdersPanel")) {
             frame.router.showOrdersPanel(selectedTableNumber);
         }
 

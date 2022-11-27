@@ -17,8 +17,6 @@ public class LoginPanel extends BasePanel {
 
 
     public LoginPanel(BarFrame frame) {
-
-        //как да заменя на вече отворения логин setText
         super(frame);
         this.language = frame.language;
         cancelButton.setVisible(false);
@@ -27,6 +25,8 @@ public class LoginPanel extends BasePanel {
         if (language == Language.BULGARIAN) {
             bulgarianLanguage();
         } else englishLanguage();
+
+
     }
 
     public void initializeElements() {
@@ -52,8 +52,12 @@ public class LoginPanel extends BasePanel {
         loginButton.setBounds(frame.getWidth() / 2 - elementWidth / 2, pinField.getY() + 50,
                 elementWidth, elementHeight);
         loginButton.addActionListener(e -> loginAction());
-        add(loginButton);
 
+        InputMap im = loginButton.getInputMap();
+        im.put(KeyStroke.getKeyStroke("ENTER"), "none");
+        im.put(KeyStroke.getKeyStroke("released ENTER"), "released");
+
+        add(loginButton);
     }
 
     public void loginAction() {

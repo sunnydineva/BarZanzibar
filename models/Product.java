@@ -17,6 +17,10 @@ public class Product {
         this.quantity = quantity;
     }
 
+    public String getTotalPrice(){
+        return String.format("%.2f лв.", this.quantity * this.price);
+    }
+
     public String getUid() {
         return uid;
     }

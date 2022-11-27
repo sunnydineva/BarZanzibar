@@ -19,13 +19,13 @@ public class Order {
     public String getTotalPrice(boolean withDiscount){
         double sum = 0;
         for (Product product: products) {
-            sum += product.getPrice();
+            sum += product.getPrice() * product.getQuantity();
         }
         if(withDiscount) {
             double discount = sum * percentDiscount * 0.01;
             sum = sum - discount;
         }
-        return Double.toString(sum);
+        return String.format("%.2f лв.", sum);
 
     }
 

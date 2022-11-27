@@ -6,6 +6,7 @@ import models.*;
 import screens.UsersPanel;
 import screens.BasePanel;
 
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 
@@ -15,7 +16,6 @@ public class BarDataProvider {
     public ArrayList<User> users;
     public ArrayList<User> searchedUsers;
     public ArrayList<Order> orders;
-
     public ArrayList<Integer> tables;
     public ArrayList<Product> products;
     public ArrayList<Category> categories; //for JButtons
@@ -95,14 +95,22 @@ public class BarDataProvider {
         for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
             if (order.getTableNumber() == tableNumber) {
-
                 String row[] = new String[3];
-
                 row[0] = Integer.toString(i + 1);
                 row[1] = order.getProductsCount();
                 row[2] = order.getTotalPrice(false);
                 model.addRow(row);
             }
+        }
+    }
+    public void fetchProducts(DefaultTableModel model, Order order) {
+        model.setRowCount(0);
+        for (Product product : order.getProducts()){
+                String row[] = new String[3];
+                row[0] = product.getBrand();
+                row[1] = Integer.toString(product.getQuantity());
+                row[2] = product.getTotalPrice();
+                model.addRow(row);
         }
     }
 
@@ -111,13 +119,6 @@ public class BarDataProvider {
         orders.add(order);
         fetchOrders(ordersTableModel, selectedTableNumber);
     }
-
-    public void addProductAction(int selectedTableNumber, DefaultTableModel productsTableModel) {
-
-        System.out.println("добавям продукта в таблицата с продукти");
-
-    }
-
     public void adduserAction(UsersPanel adminPanel, DefaultTableModel usersTableModel) {
 
         //validations
@@ -218,7 +219,7 @@ public class BarDataProvider {
     public ArrayList<String> getSubCategories(ProductType productCategory) {
         subCategories = new ArrayList<>();  //for all the subTypes: уиски, водка и т.н. колкото ще има
         ArrayList<String> subCategoriesTemp = new ArrayList<>();
-        for (Product product : products) {
+        for (Product product : getProducts()) {
             if (product.getType() == productCategory) {
                 subCategoriesTemp.add(product.getSubType());
             }
@@ -228,7 +229,6 @@ public class BarDataProvider {
                 subCategories.add(subCategory);
             }
         }
-
         return subCategories;
     }
 

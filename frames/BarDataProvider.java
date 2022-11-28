@@ -6,13 +6,10 @@ import models.*;
 import screens.UsersPanel;
 import screens.BasePanel;
 
-import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 
 public class BarDataProvider {
-    BarFrame frame;
-
     public ArrayList<User> users;
     public ArrayList<User> searchedUsers;
     public ArrayList<Order> orders;
@@ -95,7 +92,7 @@ public class BarDataProvider {
         for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
             if (order.getTableNumber() == tableNumber) {
-                String row[] = new String[3];
+                String[] row = new String[3];
                 row[0] = Integer.toString(i + 1);
                 row[1] = order.getProductsCount();
                 row[2] = order.getTotalPrice(false);
@@ -106,7 +103,7 @@ public class BarDataProvider {
     public void fetchProducts(DefaultTableModel model, Order order) {
         model.setRowCount(0);
         for (Product product : order.getProducts()){
-                String row[] = new String[3];
+                String[] row = new String[3];
                 row[0] = product.getBrand();
                 row[1] = Integer.toString(product.getQuantity());
                 row[2] = product.getTotalPrice();
@@ -183,7 +180,7 @@ public class BarDataProvider {
         Product p13 = new Product("4", ProductType.FOOD, "ядки", "бадеми", 8, 1);
         Product p14 = new Product("4", ProductType.FOOD, "ядки", "фъстъци", 7, 1);
         Product p15 = new Product("4", ProductType.FOOD, "сандвичи", "вегетариански", 8, 1);
-        Product p16 = new Product("4", ProductType.FOOD, "сандвичи", "занзибански", 10, 1);
+        Product p16 = new Product("4", ProductType.FOOD, "сандвичи", "занзибарски", 10, 1);
 
         products.add(p1);
         products.add(p2);

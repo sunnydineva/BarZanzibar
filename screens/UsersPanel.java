@@ -81,9 +81,7 @@ public class UsersPanel extends BasePanel {
        addButton = new JButton("Добави");
         selectedType = null;
         addButton.setBounds(0, 230 + 160 + 40, elementWidth, 40);
-        addButton.addActionListener(e -> {
-            frame.dataProvider.adduserAction(this, usersTableModel);
-        });
+        addButton.addActionListener(e -> frame.dataProvider.adduserAction(this, usersTableModel));
         add(addButton);
 
     }
@@ -118,19 +116,28 @@ public class UsersPanel extends BasePanel {
     }
 
     public void bulgarianLanguage(){
+/* разваля ми fetchUsers
 
-/* така или иначе при отваряне ми излиза на BULGARIAN
         nameField.setText("Име");
         phoneField.setText("Телефон");
         pinField.setText("ПИН");
         searchField.setText("Търсено име");
 
+ */
+
+
+
+        String[] columns = {"Име", "ПИН", "Телефон", "Тип"};
+        usersTableModel.setColumnIdentifiers(columns);
+
         addButton.setText("Добави");
         deleteButton.setText("Изтрий");
-*/
+
+        repaint();
+
     }
     public void englishLanguage(){
-/* незнайно защо ми разваля fetchUsers - не ми пълни при стартиране таблицата ??????????????????????????
+/*
         nameField.setText("Name");
         phoneField.setText("Phone");
         pinField.setText("PIN");
@@ -140,6 +147,11 @@ public class UsersPanel extends BasePanel {
 
         addButton.setText("Add");
         deleteButton.setText("Remove");
+
+        String[] columns = {"Name", "PIN", "Phone", "Level"};
+        usersTableModel.setColumnIdentifiers(columns);
+
+        repaint();
     }
 
     public UserType getSelectedType() {

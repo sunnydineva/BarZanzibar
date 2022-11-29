@@ -95,19 +95,21 @@ public class BarDataProvider {
                 String[] row = new String[3];
                 row[0] = Integer.toString(i + 1);
                 row[1] = order.getProductsCount();
-                row[2] = order.getTotalPrice(false);
+                if (order.getPercentDiscount() > 0) row[2] = order.getTotalPrice(true);
+                else row[2] = order.getTotalPrice(false);
                 model.addRow(row);
             }
         }
     }
+
     public void fetchProducts(DefaultTableModel model, Order order) {
         model.setRowCount(0);
-        for (Product product : order.getProducts()){
-                String[] row = new String[3];
-                row[0] = product.getBrand();
-                row[1] = Integer.toString(product.getQuantity());
-                row[2] = product.getTotalPrice();
-                model.addRow(row);
+        for (Product product : order.getProducts()) {
+            String[] row = new String[3];
+            row[0] = product.getBrand();
+            row[1] = Integer.toString(product.getQuantity());
+            row[2] = product.getTotalPrice();
+            model.addRow(row);
         }
     }
 
@@ -116,6 +118,7 @@ public class BarDataProvider {
         orders.add(order);
         fetchOrders(ordersTableModel, selectedTableNumber);
     }
+
     public void adduserAction(UsersPanel adminPanel, DefaultTableModel usersTableModel) {
 
         //validations
@@ -129,10 +132,6 @@ public class BarDataProvider {
 
 
     public void deleteUserAction(BasePanel basePanel, UsersPanel adminPanel, DefaultTableModel usersTableModelBase) {
-        // Търсенияте е нулевия индекс и така ще изтриема първия от арея, а не селектирания!!!!!!
-        // ако търсим ще трябва да вземем от арей листа SearchedUsers Петко -
-        // влизаме в оригиналния арей и изтриваме Петко, isSearchingUser = false, fetch
-
         if (adminPanel.usersTable.getSelectedRow() < 0) {  //ако нямаме селектиран ред
             basePanel.showError("Нямате избран потебител");
             return;
@@ -181,6 +180,7 @@ public class BarDataProvider {
         Product p14 = new Product("4", ProductType.FOOD, "ядки", "фъстъци", 7, 1);
         Product p15 = new Product("4", ProductType.FOOD, "сандвичи", "вегетариански", 8, 1);
         Product p16 = new Product("4", ProductType.FOOD, "сандвичи", "занзибарски", 10, 1);
+        Product p17 = new Product("4", ProductType.FOOD, "сандвичи", "картонен", 1, 1);
 
         products.add(p1);
         products.add(p2);
@@ -198,6 +198,7 @@ public class BarDataProvider {
         products.add(p14);
         products.add(p15);
         products.add(p16);
+        products.add(p17);
         return products;
 
     }

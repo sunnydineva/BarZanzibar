@@ -8,6 +8,8 @@ public class Order {
     private ArrayList<Product> products;
     private User waitress;
     private int percentDiscount;
+    private int maxDiscount;
+    private int minDiscount;
 
     public Order(String uid, int tableNumber, User waitress) {
         this.uid = uid;
@@ -65,6 +67,22 @@ public class Order {
 
     public int getPercentDiscount() {
         return percentDiscount;
+    }
+
+    public int getMaxDiscount() {
+        return maxDiscount;
+    }
+
+    public void setMaxDiscount(int maxDiscount) {
+        this.maxDiscount = maxDiscount;
+    }
+
+    public int getMinDiscount() {
+        return minDiscount;
+    }
+
+    public void setMinDiscount(int minDiscount) {
+        this.minDiscount = minDiscount;
     }
 
     public void setPercentDiscount(int percentDiscount) {

@@ -4,6 +4,8 @@ import frames.BarFrame;
 import models.*;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -31,10 +33,11 @@ public class OrdersPanel extends BasePanel {
     public String createOrderErrorMessage;
     public String plusMinusOrderErrorMessage;
     public String plusMinusProductErrorMessage;
+    public String discountMessage;
+    public String discountErrorMessage;
     public ArrayList<JButton> categoryButtons;
     public ArrayList<JButton> subTypeButtons;
     public ArrayList<JButton> productButtons;
-
     public ProductType selectedCategory;
     public int buttonX;
     public int buttonY;
@@ -55,22 +58,23 @@ public class OrdersPanel extends BasePanel {
 
         frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
 
-
-        // Order order = frame.dataProvider.orders.get(ordersTable.getSelectedRow());
-
-        //  if (frame.dataProvider.orders.size() > 0) {
-        //   frame.dataProvider.fetchProducts(productsTableModel, frame.dataProvider.orders.get(ordersTable.getSelectedRow()));
-        //}
+        if(frame.dataProvider.orders.size() > 0) ordersTable.setRowSelectionInterval(0, 0);
 
         buttonX = frame.getWidth() / 2 - elementWidth / 2;
         buttonY = 100;
 
     }
 
+    /* Create, Settle, Table, Waitress */
     public void initializeHeader() {
         createButton = new JButton("Създай");
         createButton.setBounds(0, 15, elementWidth, 40);
-        createButton.addActionListener(e -> createOrderAction());
+        createButton.addActionListener(e -> {
+            createOrderAction();
+            int currentlyCreatedRow = frame.dataProvider.orders.size() - 1;
+            ordersTable.setRowSelectionInterval(currentlyCreatedRow, currentlyCreatedRow);
+        });
+
         add(createButton);
 
         finishButton = new JButton("Приключи");
@@ -93,127 +97,23 @@ public class OrdersPanel extends BasePanel {
     }
 
     public void initializeOrdersTable() {
-        String cols[] = {"Поръчка", "Продукти", "Цена"};
+        String[] cols = {"Поръчка", "Продукти", "Цена"};
         ordersTableModel = new DefaultTableModel();
         ordersTableModel.setColumnIdentifiers(cols);
         ordersTable = new JTable(ordersTableModel);
+        ordersTable.getSelectionModel().addListSelectionListener(e -> {
+            if (ordersTable.getSelectedRow() > -1) {
+                frame.dataProvider.fetchProducts(productsTableModel,
+                        frame.dataProvider.orders.get(ordersTable.getSelectedRow()));
+            }
+        }
+        );
         tableCellRenderer(ordersTable);
         JScrollPane ordersPane = new JScrollPane(ordersTable);
         ordersPane.setBounds(0, 65, elementWidth, frame.getHeight() - 65 - 100 - 10);
         add(ordersPane);
         frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
     }
-
-    public void tableCellRenderer(JTable table) {
-        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
-        rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
-        table.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
-    }
-
-    public void initializeCategoryButtons() {  //product.productType
-        int buttonX = frame.getWidth() / 2 - elementWidth / 2;
-        int buttonY = 100;
-        categoryButtons = new ArrayList<>();
-        for (Category category : frame.dataProvider.getCategories()) {
-            JButton button = new JButton(category.title);
-            button.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    selectedCategory = category.type;
-                    initializeSubProductsButtons(category.type);
-                }
-            });
-            button.setBounds(buttonX, buttonY, elementWidth, 40);
-            add(button);
-            categoryButtons.add(button);
-            buttonY += 40;
-        }
-        repaint();
-    }
-
-    public void initializeSubProductsButtons(ProductType type) { //product.subType
-        clearButtons(categoryButtons);
-        int buttonX = frame.getWidth() / 2 - elementWidth / 2;
-        int buttonY = 100;
-        subTypeButtons = new ArrayList<>();
-        for (String subCategory : frame.dataProvider.getSubCategories(type)) {
-            JButton button = new JButton(subCategory);
-            button.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    clearButtons(subTypeButtons);
-                    initializeProductsButtons(subCategory);
-                }
-            });
-            button.setBounds(buttonX, buttonY, elementWidth, 40);
-            add(button);
-            subTypeButtons.add(button);
-            buttonY += 40;
-        }
-        backButton = new JButton("Назад");
-        backButton.setBounds(buttonX, buttonY, elementWidth, 40);
-        backButton.addActionListener(e -> backAction(subTypeButtons));
-        add(backButton);
-        subTypeButtons.add(backButton);
-        repaint();
-    }
-
-    public void initializeProductsButtons(String selectedSubType) {
-        int buttonX = frame.getWidth() / 2 - elementWidth / 2;
-        int buttonY = 100;
-        productButtons = new ArrayList<>();
-        for (String productBrand : frame.dataProvider.getProductsBrands(selectedSubType)) {
-            JButton button = new JButton(productBrand);
-            button.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    addProductAction(productBrand);
-                }
-            });
-            button.setBounds(buttonX, buttonY, elementWidth, 40);
-            add(button);
-            productButtons.add(button);
-            buttonY += 40;
-        }
-        backButton = new JButton("Назад");
-        backButton.setBounds(buttonX, buttonY, elementWidth, 40);
-        backButton.addActionListener(e -> backAction(productButtons));
-        add(backButton);
-        productButtons.add(backButton);
-
-        repaint();
-
-    }
-
-    public void clearButtons(ArrayList<JButton> activeButtonsList) {
-        if (activeButtonsList != null) {
-            for (JButton button : activeButtonsList) {
-                remove(button);
-            }
-            repaint();
-        }
-    }
-
-
-    /*
-     * deletes the current array with buttons and goes to the superior
-     */
-    public void backAction(ArrayList<JButton> activeButtList) {
-        if (activeButtList == subTypeButtons) {
-            clearButtons(activeButtList);
-
-            initializeCategoryButtons();
-            repaint();
-        } else if (activeButtList == productButtons) {
-            clearButtons(activeButtList);
-            initializeSubProductsButtons(selectedCategory);
-            repaint();
-        }
-    }
-
 
     public void initializeProductsTable() {
         String[] cols = {"Продукт", "Количество", "Цена"};
@@ -229,12 +129,110 @@ public class OrdersPanel extends BasePanel {
 
     }
 
+    public void tableCellRenderer(JTable table) {
+        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+        rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
+        table.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+    }
+
+    /* initialize buttons for every unique category product */
+    public void initializeCategoryButtons() {
+        int buttonX = frame.getWidth() / 2 - elementWidth / 2;
+        int buttonY = 100;
+        categoryButtons = new ArrayList<>();
+        for (Category category : frame.dataProvider.getCategories()) {
+            JButton button = new JButton(category.title);
+            button.addActionListener(e -> {
+                selectedCategory = category.type;
+                initializeSubProductsButtons(category.type);
+            });
+            button.setBounds(buttonX, buttonY, elementWidth, 40);
+            add(button);
+            categoryButtons.add(button);
+            buttonY += 40;
+        }
+        repaint();
+    }
+
+    /* initialize buttons for every unique product subtype */
+    public void initializeSubProductsButtons(ProductType type) {
+        clearButtons(categoryButtons);
+        int buttonX = frame.getWidth() / 2 - elementWidth / 2;
+        int buttonY = 100;
+        subTypeButtons = new ArrayList<>();
+        for (String subCategory : frame.dataProvider.getSubCategories(type)) {
+            JButton button = new JButton(subCategory);
+            button.addActionListener(e -> {
+                clearButtons(subTypeButtons);
+                initializeProductsButtons(subCategory);
+            });
+            button.setBounds(buttonX, buttonY, elementWidth, 40);
+            add(button);
+            subTypeButtons.add(button);
+            buttonY += 40;
+        }
+        backButton = new JButton("Назад");
+        backButton.setBounds(buttonX, buttonY, elementWidth, 40);
+        backButton.addActionListener(e -> backAction(subTypeButtons));
+        add(backButton);
+        subTypeButtons.add(backButton);
+        repaint();
+    }
+
+    /* initialize buttons for every unique product brand */
+    public void initializeProductsButtons(String selectedSubType) {
+        int buttonX = frame.getWidth() / 2 - elementWidth / 2;
+        int buttonY = 100;
+        productButtons = new ArrayList<>();
+        for (String productBrand : frame.dataProvider.getProductsBrands(selectedSubType)) {
+            JButton button = new JButton(productBrand);
+            button.addActionListener(e -> addProductAction(productBrand));
+            button.setBounds(buttonX, buttonY, elementWidth, 40);
+            add(button);
+            productButtons.add(button);
+            buttonY += 40;
+        }
+        backButton = new JButton("Назад");
+        backButton.setBounds(buttonX, buttonY, elementWidth, 40);
+        backButton.addActionListener(e -> backAction(productButtons));
+        add(backButton);
+        productButtons.add(backButton);
+
+        repaint();
+
+    }
+
+    /* removes buttons for category/subtype/brand */
+    public void clearButtons(ArrayList<JButton> activeButtonsList) {
+        if (activeButtonsList != null) {
+            for (JButton button : activeButtonsList) {
+                remove(button);
+            }
+            repaint();
+        }
+    }
+
+
+    /* deletes the current array with buttons and goes to the superior */
+    public void backAction(ArrayList<JButton> activeButtList) {
+        if (activeButtList == subTypeButtons) {
+            clearButtons(activeButtList);
+
+            initializeCategoryButtons();
+            repaint();
+        } else if (activeButtList == productButtons) {
+            clearButtons(activeButtList);
+            initializeSubProductsButtons(selectedCategory);
+            repaint();
+        }
+    }
+
+    /* buttons Plus, Minus, Discount, Back to tables */
     public void initializeFooter() {
-        /* BUTTONS PLUS, MINUS, DISCOUNT, BACK TO TABLES
 
-
-
-         */
         tablesButton = new JButton("Маси");
         tablesButton.setBounds(0, frame.getHeight() - 100,
                 elementWidth, 40);
@@ -273,13 +271,13 @@ public class OrdersPanel extends BasePanel {
     }
 
     public void plusAction() {
-      if(ordersTable.getSelectedRow() < 0){
+        if (ordersTable.getSelectedRow() < 0) {
             showError(plusMinusOrderErrorMessage);
             return;
-      } else if (productsTable.getSelectedRow() < 0) {
-          showError(plusMinusProductErrorMessage);
-          return;
-      }
+        } else if (productsTable.getSelectedRow() < 0) {
+            showError(plusMinusProductErrorMessage);
+            return;
+        }
         int currentlySelectedOrderRow = ordersTable.getSelectedRow();
         int currentlySelectedProductRow = productsTable.getSelectedRow();
         Order order = frame.dataProvider.orders.get(ordersTable.getSelectedRow());
@@ -292,7 +290,7 @@ public class OrdersPanel extends BasePanel {
     }
 
     public void minusAction() {
-        if(ordersTable.getSelectedRow() < 0){
+        if (ordersTable.getSelectedRow() < 0) {
             showError(plusMinusOrderErrorMessage);
             return;
         } else if (productsTable.getSelectedRow() < 0) {
@@ -308,20 +306,32 @@ public class OrdersPanel extends BasePanel {
             order.getProducts().remove(productsTable.getSelectedRow());
             currentlySelectedProductRow -= 1;
         } else {
-        prd.setQuantity(prd.getQuantity() - 1);
+            prd.setQuantity(prd.getQuantity() - 1);
 
-
+            frame.dataProvider.fetchProducts(productsTableModel, order);
+            frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
+            ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
+            productsTable.setRowSelectionInterval(currentlySelectedProductRow, currentlySelectedProductRow);
+        }
     }
-
-
-        frame.dataProvider.fetchProducts(productsTableModel,order);
-        frame.dataProvider.fetchOrders(ordersTableModel,selectedTableNumber);
-        ordersTable.setRowSelectionInterval(currentlySelectedOrderRow,currentlySelectedOrderRow);
-        productsTable.setRowSelectionInterval(currentlySelectedProductRow,currentlySelectedProductRow);
-}
-
+/* makes discount for an order within min and max */
     public void discountAction() {
+        Order order = frame.dataProvider.orders.get(ordersTable.getSelectedRow());
+        int currentlySelectedRow = ordersTable.getSelectedRow();
+        int discount = Integer.parseInt(JOptionPane.showInputDialog(discountMessage));
+        if (order.getPercentDiscount() > 0) {
+            showError(discountErrorMessage);
+            return;
+        }
+        if (discount > order.getMaxDiscount() || discount < order.getMinDiscount()) {
+            showError(discountMessage);
 
+        } else {
+            order.setPercentDiscount(discount);
+        }
+
+        frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
+        ordersTable.setRowSelectionInterval(currentlySelectedRow, currentlySelectedRow);
     }
 
     public void addProductAction(String productBrand) {
@@ -349,7 +359,6 @@ public class OrdersPanel extends BasePanel {
         frame.dataProvider.fetchProducts(productsTableModel, order);
         frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
         ordersTable.setRowSelectionInterval(currentlySelectedRow, currentlySelectedRow);
-
     }
 
     public void bulgarianLanguage() {
@@ -367,7 +376,13 @@ public class OrdersPanel extends BasePanel {
         createOrderErrorMessage = "Моля селектирайте поръчка";
         plusMinusProductErrorMessage = "Моля селектирайте продукт";
         plusMinusOrderErrorMessage = "Моля селектирайте поръчка";
+        discountMessage = "Моля въведете процент на отстъпка между 1 и 50";
+        discountErrorMessage = "Вече има приложена отстъпка.";
 
+        String[] orderCols = {"Поръчка", "Продукти", "Цена"};
+        ordersTableModel.setColumnIdentifiers(orderCols);
+        String[] productCols = {"Продукт", "Количество", "Цена"};
+        productsTableModel.setColumnIdentifiers(productCols);
 
     }
 
@@ -386,7 +401,13 @@ public class OrdersPanel extends BasePanel {
         createOrderErrorMessage = "Please select order";
         plusMinusProductErrorMessage = "Please select product";
         plusMinusOrderErrorMessage = "Please select order";
+        discountMessage = "Please enter discount percent between 1 and 50 %";
+        discountErrorMessage = "Discount has been applied already.";
 
+        String[] orderCols = {"Order", "Products", "Price"};
+        ordersTableModel.setColumnIdentifiers(orderCols);
+        String[] productCols = {"Product", "Quantity", "Price"};
+        productsTableModel.setColumnIdentifiers(productCols);
 
         repaint();
     }

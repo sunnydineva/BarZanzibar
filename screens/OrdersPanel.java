@@ -30,7 +30,8 @@ public class OrdersPanel extends BasePanel {
     JButton discountButton;
     public String table;
     public String createOrderMessage;
-    public String createOrderErrorMessage;
+    public String createOrderSelectErrorMessage;
+    public String createOrderFinishErrorMessage;
     public String plusMinusOrderErrorMessage;
     public String plusMinusProductErrorMessage;
     public String discountMessage;
@@ -57,8 +58,8 @@ public class OrdersPanel extends BasePanel {
         } else englishLanguage();
 
         frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
+        selectFirstRowOrderTable();
 
-        if(frame.dataProvider.orders.size() > 0) ordersTable.setRowSelectionInterval(0, 0);
 
         buttonX = frame.getWidth() / 2 - elementWidth / 2;
         buttonY = 100;
@@ -71,8 +72,8 @@ public class OrdersPanel extends BasePanel {
         createButton.setBounds(0, 15, elementWidth, 40);
         createButton.addActionListener(e -> {
             createOrderAction();
-            int currentlyCreatedRow = frame.dataProvider.orders.size() - 1;
-            ordersTable.setRowSelectionInterval(currentlyCreatedRow, currentlyCreatedRow);
+            int currentlyCreatedRow = frame.dataProvider.orders.size() - 1;  // да сменя!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            ordersTable.setRowSelectionInterval(currentlyCreatedRow, currentlyCreatedRow);  // да сменя!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         });
 
         add(createButton);
@@ -101,13 +102,7 @@ public class OrdersPanel extends BasePanel {
         ordersTableModel = new DefaultTableModel();
         ordersTableModel.setColumnIdentifiers(cols);
         ordersTable = new JTable(ordersTableModel);
-        ordersTable.getSelectionModel().addListSelectionListener(e -> {
-            if (ordersTable.getSelectedRow() > -1) {
-                frame.dataProvider.fetchProducts(productsTableModel,
-                        frame.dataProvider.orders.get(ordersTable.getSelectedRow()));
-            }
-        }
-        );
+        ordersTable.getSelectionModel().addListSelectionListener(e -> showProductsForOrder());
         tableCellRenderer(ordersTable);
         JScrollPane ordersPane = new JScrollPane(ordersTable);
         ordersPane.setBounds(0, 65, elementWidth, frame.getHeight() - 65 - 100 - 10);
@@ -261,10 +256,29 @@ public class OrdersPanel extends BasePanel {
     public void createOrderAction() {
         boolean isYes = showQuestion(createOrderMessage);
         if (isYes) {
+
+            if (frame.dataProvider.orders.size() > 0) {
+                for (Order order : frame.dataProvider.orders) {
+                    if (order.getTableNumber() == selectedTableNumber
+                            && (order.getTotalPriceDouble(false)) == 0) {
+                        showError(createOrderFinishErrorMessage);
+                        return;
+//                    } else {
+//                        frame.dataProvider.createOrderAction(selectedTableNumber, ordersTableModel);
+//                        initializeCategoryButtons();
+//                    }
+
+                    }
+                }
+            }
+
             frame.dataProvider.createOrderAction(selectedTableNumber, ordersTableModel);
             initializeCategoryButtons();
+
         }
+
     }
+
 
     public void finishAction() {
 
@@ -278,14 +292,19 @@ public class OrdersPanel extends BasePanel {
             showError(plusMinusProductErrorMessage);
             return;
         }
-        int currentlySelectedOrderRow = ordersTable.getSelectedRow();
-        int currentlySelectedProductRow = productsTable.getSelectedRow();
+
         Order order = frame.dataProvider.orders.get(ordersTable.getSelectedRow());
         Product prd = order.getProducts().get(productsTable.getSelectedRow());
+        int currentlySelectedOrderRow = ordersTable.getSelectedRow();
+        int currentlySelectedProductRow = productsTable.getSelectedRow();
+
         prd.setQuantity(prd.getQuantity() + 1);
-        frame.dataProvider.fetchProducts(productsTableModel, order);
-        frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
-        ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
+
+//        frame.dataProvider.fetchProducts(productsTableModel, order);
+//        frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
+//        ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
+
+        fetchTablesAndSelectOrder(order, currentlySelectedOrderRow);
         productsTable.setRowSelectionInterval(currentlySelectedProductRow, currentlySelectedProductRow);
     }
 
@@ -304,27 +323,40 @@ public class OrdersPanel extends BasePanel {
 
         if (prd.getQuantity() == 1) {
             order.getProducts().remove(productsTable.getSelectedRow());
-            currentlySelectedProductRow -= 1;
+
+            if (!(productsTable.getColumnCount() == 0)) {
+                currentlySelectedProductRow -= 1;
+            }
+
         } else {
             prd.setQuantity(prd.getQuantity() - 1);
+        }
 
-            frame.dataProvider.fetchProducts(productsTableModel, order);
-            frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
-            ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
-            productsTable.setRowSelectionInterval(currentlySelectedProductRow, currentlySelectedProductRow);
+//        frame.dataProvider.fetchProducts(productsTableModel, order);
+//        frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
+//        ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
+
+        fetchTablesAndSelectOrder(order, currentlySelectedOrderRow);
+
+        if (!(productsTable.getRowCount() == 0)) {
+                productsTable.setRowSelectionInterval(currentlySelectedProductRow, currentlySelectedProductRow);
         }
     }
+
 /* makes discount for an order within min and max */
     public void discountAction() {
         Order order = frame.dataProvider.orders.get(ordersTable.getSelectedRow());
         int currentlySelectedRow = ordersTable.getSelectedRow();
-        int discount = Integer.parseInt(JOptionPane.showInputDialog(discountMessage));
-        if (order.getPercentDiscount() > 0) {
+
+        if (order.getPercentDiscount() > 0) { //if there is a discount
             showError(discountErrorMessage);
             return;
         }
+        int discount = Integer.parseInt(JOptionPane.showInputDialog(discountMessage));
+
         if (discount > order.getMaxDiscount() || discount < order.getMinDiscount()) {
             showError(discountMessage);
+            order.setPercentDiscount(discount); // test
 
         } else {
             order.setPercentDiscount(discount);
@@ -336,10 +368,10 @@ public class OrdersPanel extends BasePanel {
 
     public void addProductAction(String productBrand) {
         if (ordersTable.getSelectedRow() < 0) {
-            showError(createOrderErrorMessage);
+            showError(createOrderSelectErrorMessage);
             return;
         }
-        int currentlySelectedRow = ordersTable.getSelectedRow();
+        int currentlySelectedOrderRow = ordersTable.getSelectedRow();
         Order order = frame.dataProvider.orders.get(ordersTable.getSelectedRow());
         boolean isFound = false;
         for (Product prd : order.getProducts()) {
@@ -356,10 +388,38 @@ public class OrdersPanel extends BasePanel {
                 }
             }
         }
+//        frame.dataProvider.fetchProducts(productsTableModel, order);
+//        frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
+//        ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
+          fetchTablesAndSelectOrder(order, currentlySelectedOrderRow);
+
+    }
+
+    public void selectFirstRowOrderTable(){
+        if(frame.dataProvider.orders.size() > 0) {
+            for (Order order : frame.dataProvider.orders) {
+                if (order.getTableNumber() == selectedTableNumber) {
+                    ordersTable.setRowSelectionInterval(0, 0);
+                }
+            }
+        }
+    }
+
+    public void fetchTablesAndSelectOrder(Order order, int currentlySelectedOrderRow){
         frame.dataProvider.fetchProducts(productsTableModel, order);
         frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
-        ordersTable.setRowSelectionInterval(currentlySelectedRow, currentlySelectedRow);
+        ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
     }
+
+    public void showProductsForOrder() {
+        if (ordersTable.getSelectedRow() > -1) {
+
+            frame.dataProvider.fetchProducts(productsTableModel,
+                        frame.dataProvider.orders.get(ordersTable.getSelectedRow()));
+            }
+
+        }
+// да го оправя
 
     public void bulgarianLanguage() {
         table = "Маса: ";
@@ -373,7 +433,8 @@ public class OrdersPanel extends BasePanel {
         } catch (Exception ignored) {
         }
         createOrderMessage = "Отваряне на нова поръчка?";
-        createOrderErrorMessage = "Моля селектирайте поръчка";
+        createOrderSelectErrorMessage = "Моля селектирайте поръчка";
+        createOrderFinishErrorMessage = "Моля довършете предходната поръчка";
         plusMinusProductErrorMessage = "Моля селектирайте продукт";
         plusMinusOrderErrorMessage = "Моля селектирайте поръчка";
         discountMessage = "Моля въведете процент на отстъпка между 1 и 50";
@@ -398,7 +459,8 @@ public class OrdersPanel extends BasePanel {
         } catch (Exception ignored) {
         }
         createOrderMessage = "New order?";
-        createOrderErrorMessage = "Please select order";
+        createOrderSelectErrorMessage = "Please select order";
+        createOrderFinishErrorMessage = "Please finalize the previous order";
         plusMinusProductErrorMessage = "Please select product";
         plusMinusOrderErrorMessage = "Please select order";
         discountMessage = "Please enter discount percent between 1 and 50 %";

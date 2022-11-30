@@ -13,6 +13,7 @@ public class BarDataProvider {
     public ArrayList<User> users;
     public ArrayList<User> searchedUsers;
     public ArrayList<Order> orders;
+    public ArrayList<Order> ordersForTable;  //?????????????????
     public ArrayList<Integer> tables;
     public ArrayList<Product> products;
     public ArrayList<Category> categories; //for JButtons
@@ -92,6 +93,14 @@ public class BarDataProvider {
         for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
             if (order.getTableNumber() == tableNumber) {
+
+                //test:
+
+                ordersForTable = new ArrayList<>();
+                ordersForTable.add(order);
+
+                // end
+
                 String[] row = new String[3];
                 row[0] = Integer.toString(i + 1);
                 row[1] = order.getProductsCount();

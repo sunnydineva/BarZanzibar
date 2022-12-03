@@ -1,8 +1,6 @@
 package frames;
 
 //navigation and group methods
-
-import models.Language;
 import screens.*;
 
 public class BarRouter {
@@ -39,8 +37,8 @@ public class BarRouter {
         this.frame.validate();
     }
 
-    public void showOrdersPanel(int tableNumber) {
-        OrdersPanel panel = new OrdersPanel(frame, tableNumber);
+    public void showOrdersPanel() {
+        OrdersPanel panel = new OrdersPanel(frame);
         this.frame.setContentPane(panel);
         this.frame.validate();
     }

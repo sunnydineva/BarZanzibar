@@ -4,17 +4,12 @@ import frames.BarFrame;
 import models.*;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class OrdersPanel extends BasePanel {
-    public int selectedTableNumber;
     public JLabel tableLabel;
     public JLabel waitressLabel;
     public JTable ordersTable;
@@ -44,9 +39,9 @@ public class OrdersPanel extends BasePanel {
     public int buttonY;
 
 
-    public OrdersPanel(BarFrame frame, int selectedTableNumber) {
+    public OrdersPanel(BarFrame frame) {
         super(frame);
-        this.selectedTableNumber = selectedTableNumber;
+
 
         initializeHeader();
         initializeOrdersTable();
@@ -60,7 +55,6 @@ public class OrdersPanel extends BasePanel {
         frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
         selectFirstRowOrderTable();
 
-
         buttonX = frame.getWidth() / 2 - elementWidth / 2;
         buttonY = 100;
 
@@ -70,17 +64,12 @@ public class OrdersPanel extends BasePanel {
     public void initializeHeader() {
         createButton = new JButton("Създай");
         createButton.setBounds(0, 15, elementWidth, 40);
-        createButton.addActionListener(e -> {
-            createOrderAction();
-            int currentlyCreatedRow = frame.dataProvider.orders.size() - 1;  // да сменя!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            ordersTable.setRowSelectionInterval(currentlyCreatedRow, currentlyCreatedRow);  // да сменя!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        });
-
+        createButton.addActionListener(e -> createOrderAction());
         add(createButton);
 
         finishButton = new JButton("Приключи");
         finishButton.setBounds(frame.getWidth() - elementWidth, 15, elementWidth, 40);
-        finishButton.addActionListener(e -> finishAction());
+        finishButton.addActionListener(e -> finishOrderAction());
         add(finishButton);
 
         waitressLabel = new JLabel(frame.dataProvider.loggedUser.getName());
@@ -215,7 +204,6 @@ public class OrdersPanel extends BasePanel {
     public void backAction(ArrayList<JButton> activeButtList) {
         if (activeButtList == subTypeButtons) {
             clearButtons(activeButtList);
-
             initializeCategoryButtons();
             repaint();
         } else if (activeButtList == productButtons) {
@@ -256,32 +244,38 @@ public class OrdersPanel extends BasePanel {
     public void createOrderAction() {
         boolean isYes = showQuestion(createOrderMessage);
         if (isYes) {
-
-            if (frame.dataProvider.orders.size() > 0) {
-                for (Order order : frame.dataProvider.orders) {
-                    if (order.getTableNumber() == selectedTableNumber
-                            && (order.getTotalPriceDouble(false)) == 0) {
-                        showError(createOrderFinishErrorMessage);
-                        return;
-//                    } else {
-//                        frame.dataProvider.createOrderAction(selectedTableNumber, ordersTableModel);
-//                        initializeCategoryButtons();
-//                    }
-
-                    }
-                }
-            }
-
             frame.dataProvider.createOrderAction(selectedTableNumber, ordersTableModel);
+            selectLastCreatedRow(ordersTable);
             initializeCategoryButtons();
-
         }
-
     }
 
 
-    public void finishAction() {
+    public void finishOrderAction() {
 
+    }
+
+    public void addProductAction(String productBrand) {
+        if (ordersTable.getSelectedRow() < 0) {
+            showError(createOrderSelectErrorMessage);
+            return;
+        }
+        boolean isFound = false;
+        for (Product prd : currentlySelectedOrder().getProducts()) {
+            if (prd.getBrand().equals(productBrand)) {
+                prd.setQuantity(prd.getQuantity() + 1);
+                isFound = true;
+                break;
+            }
+        }
+        if (!isFound) {
+            for (Product product : frame.dataProvider.products) {
+                if (product.getBrand().equals(productBrand)) {
+                    currentlySelectedOrder().getProducts().add(product);
+                }
+            }
+        }
+        fetchTablesAndSelectOrder(currentlySelectedOrder());
     }
 
     public void plusAction() {
@@ -292,19 +286,11 @@ public class OrdersPanel extends BasePanel {
             showError(plusMinusProductErrorMessage);
             return;
         }
-
-        Order order = frame.dataProvider.orders.get(ordersTable.getSelectedRow());
-        Product prd = order.getProducts().get(productsTable.getSelectedRow());
-        int currentlySelectedOrderRow = ordersTable.getSelectedRow();
+        Product prd = currentlySelectedOrder().getProducts().get(productsTable.getSelectedRow());
         int currentlySelectedProductRow = productsTable.getSelectedRow();
-
         prd.setQuantity(prd.getQuantity() + 1);
-
-//        frame.dataProvider.fetchProducts(productsTableModel, order);
-//        frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
-//        ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
-
-        fetchTablesAndSelectOrder(order, currentlySelectedOrderRow);
+        if (prd.getQuantity() % 10 == 0) showError("Стига помпи плюса:P"); // my sweet joke
+        fetchTablesAndSelectOrder(currentlySelectedOrder());
         productsTable.setRowSelectionInterval(currentlySelectedProductRow, currentlySelectedProductRow);
     }
 
@@ -316,96 +302,68 @@ public class OrdersPanel extends BasePanel {
             showError(plusMinusProductErrorMessage);
             return;
         }
-        int currentlySelectedOrderRow = ordersTable.getSelectedRow();
         int currentlySelectedProductRow = productsTable.getSelectedRow();
-        Order order = frame.dataProvider.orders.get(ordersTable.getSelectedRow());
-        Product prd = order.getProducts().get(productsTable.getSelectedRow());
-
-        if (prd.getQuantity() == 1) {
-            order.getProducts().remove(productsTable.getSelectedRow());
-
-            if (!(productsTable.getColumnCount() == 0)) {
+        Product prd = currentlySelectedOrder().getProducts().get(productsTable.getSelectedRow());
+        if (prd.getQuantity() == 1) { // removes the product from order, prevents of negative quantity
+            currentlySelectedOrder().getProducts().remove(productsTable.getSelectedRow());
+            if (!(productsTable.getColumnCount() == 0)) { //select the upper row after removing the last
                 currentlySelectedProductRow -= 1;
             }
-
         } else {
             prd.setQuantity(prd.getQuantity() - 1);
         }
-
-//        frame.dataProvider.fetchProducts(productsTableModel, order);
-//        frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
-//        ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
-
-        fetchTablesAndSelectOrder(order, currentlySelectedOrderRow);
-
+        fetchTablesAndSelectOrder(currentlySelectedOrder());
         if (!(productsTable.getRowCount() == 0)) {
-                productsTable.setRowSelectionInterval(currentlySelectedProductRow, currentlySelectedProductRow);
+            productsTable.setRowSelectionInterval(currentlySelectedProductRow, currentlySelectedProductRow);
         }
     }
 
-/* makes discount for an order within min and max */
+    /* makes discount for an order within min and max */
     public void discountAction() {
-        Order order = frame.dataProvider.orders.get(ordersTable.getSelectedRow());
-        int currentlySelectedRow = ordersTable.getSelectedRow();
-
-        if (order.getPercentDiscount() > 0) { //if there is a discount
+        if (currentlySelectedOrder().getPercentDiscount() > 0) { //if there is a discount
             showError(discountErrorMessage);
             return;
         }
         int discount = Integer.parseInt(JOptionPane.showInputDialog(discountMessage));
-
-        if (discount > order.getMaxDiscount() || discount < order.getMinDiscount()) {
+        if (discount > currentlySelectedOrder().getMaxDiscount() || discount < currentlySelectedOrder().getMinDiscount()) {
             showError(discountMessage);
-            order.setPercentDiscount(discount); // test
-
+            currentlySelectedOrder().setPercentDiscount(discount);
         } else {
-            order.setPercentDiscount(discount);
+            currentlySelectedOrder().setPercentDiscount(discount);
         }
-
+        int currentlySelectedRow = ordersTable.getSelectedRow();
         frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
         ordersTable.setRowSelectionInterval(currentlySelectedRow, currentlySelectedRow);
     }
 
-    public void addProductAction(String productBrand) {
-        if (ordersTable.getSelectedRow() < 0) {
-            showError(createOrderSelectErrorMessage);
-            return;
-        }
-        int currentlySelectedOrderRow = ordersTable.getSelectedRow();
-        Order order = frame.dataProvider.orders.get(ordersTable.getSelectedRow());
-        boolean isFound = false;
-        for (Product prd : order.getProducts()) {
-            if (prd.getBrand().equals(productBrand)) {
-                prd.setQuantity(prd.getQuantity() + 1);
-                isFound = true;
-                break;
-            }
-        }
-        if (!isFound) {
-            for (Product product : frame.dataProvider.products) {
-                if (product.getBrand().equals(productBrand)) {
-                    order.getProducts().add(product);
-                }
-            }
-        }
-//        frame.dataProvider.fetchProducts(productsTableModel, order);
-//        frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
-//        ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
-          fetchTablesAndSelectOrder(order, currentlySelectedOrderRow);
 
+    public Order currentlySelectedOrder() {
+        int currentlySelectedOrderRow = ordersTable.getSelectedRow();
+        int currentlySelectedOrder =
+                Integer.parseInt((String) ordersTable.getModel().getValueAt(currentlySelectedOrderRow, 0)) - 1;
+        return frame.dataProvider.orders.get(currentlySelectedOrder);
     }
 
-    public void selectFirstRowOrderTable(){
-        if(frame.dataProvider.orders.size() > 0) {
+    public void selectFirstRowOrderTable() {
+        if (frame.dataProvider.orders.size() > 0) {
             for (Order order : frame.dataProvider.orders) {
                 if (order.getTableNumber() == selectedTableNumber) {
                     ordersTable.setRowSelectionInterval(0, 0);
+                    initializeCategoryButtons();
+                    break;
                 }
             }
         }
     }
 
-    public void fetchTablesAndSelectOrder(Order order, int currentlySelectedOrderRow){
+    public void selectLastCreatedRow(JTable table) {
+        int currentlyCreatedTableRow = 0;
+        if (table.getRowCount() != 0) currentlyCreatedTableRow = table.getRowCount() - 1;
+        table.setRowSelectionInterval(currentlyCreatedTableRow, currentlyCreatedTableRow);
+    }
+
+    public void fetchTablesAndSelectOrder(Order order) {
+        int currentlySelectedOrderRow = ordersTable.getSelectedRow();
         frame.dataProvider.fetchProducts(productsTableModel, order);
         frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
         ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
@@ -413,13 +371,10 @@ public class OrdersPanel extends BasePanel {
 
     public void showProductsForOrder() {
         if (ordersTable.getSelectedRow() > -1) {
-
             frame.dataProvider.fetchProducts(productsTableModel,
-                        frame.dataProvider.orders.get(ordersTable.getSelectedRow()));
-            }
-
+                    currentlySelectedOrder());
         }
-// да го оправя
+    }
 
     public void bulgarianLanguage() {
         table = "Маса: ";

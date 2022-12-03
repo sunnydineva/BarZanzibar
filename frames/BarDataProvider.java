@@ -13,8 +13,7 @@ public class BarDataProvider {
     public ArrayList<User> users;
     public ArrayList<User> searchedUsers;
     public ArrayList<Order> orders;
-    public ArrayList<Order> ordersForTable;  //?????????????????
-    public ArrayList<Integer> tables;
+      public ArrayList<Integer> tables;
     public ArrayList<Product> products;
     public ArrayList<Category> categories; //for JButtons
     public ArrayList<String> subCategories; //for JButtons
@@ -90,25 +89,37 @@ public class BarDataProvider {
 
     public void fetchOrders(DefaultTableModel model, int tableNumber) {
         model.setRowCount(0);
+        //double totalSumForTable = 0;
         for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
             if (order.getTableNumber() == tableNumber) {
-
-                //test:
-
-                ordersForTable = new ArrayList<>();
-                ordersForTable.add(order);
-
-                // end
-
                 String[] row = new String[3];
                 row[0] = Integer.toString(i + 1);
                 row[1] = order.getProductsCount();
-                if (order.getPercentDiscount() > 0) row[2] = order.getTotalPrice(true);
-                else row[2] = order.getTotalPrice(false);
+
+                if (order.getPercentDiscount() > 0) {
+                    row[2] = order.getTotalPrice(true);
+                    //totalSumForTable += Double.parseDouble(order.getTotalPrice(true));
+                }
+                else {
+                    row[2] = order.getTotalPrice(false);
+                    //totalSumForTable += Double.parseDouble(order.getTotalPrice(false));
+                }
                 model.addRow(row);
+
+/*
+                String[] finalRow = new String[3];
+                finalRow[1] = "Общо за масата";
+                finalRow[2] = Double.toString(totalSumForTable);
+                model.addRow(finalRow);
+
+ */
+
             }
         }
+
+
+
     }
 
     public void fetchProducts(DefaultTableModel model, Order order) {
@@ -123,6 +134,16 @@ public class BarDataProvider {
     }
 
     public void createOrderAction(int selectedTableNumber, DefaultTableModel ordersTableModel) {
+        if (orders.size() > 0) {
+            for (Order order : orders) {
+                if (order.getTableNumber() == selectedTableNumber
+                        && (order.getTotalPriceDouble(false)) == 0) {
+                    System.out.println("Dovurshete predhodnata poruchka"); // ДА ПРОМЕНЯ !!!!!!!!!!!!!!!!!!!!!!
+                    //basePanel.showError(createOrderFinishErrorMessage);  ДА ГО МЕСТЯ ЛИ ТОЗИ МЕТОД ИЛИ ДА СЕ ПРОБВАМ ДА ГО ДОСТЪПВАМ
+                    return;
+                }
+            }
+        }
         Order order = new Order("1", selectedTableNumber, loggedUser);
         orders.add(order);
         fetchOrders(ordersTableModel, selectedTableNumber);
@@ -131,6 +152,7 @@ public class BarDataProvider {
     public void adduserAction(UsersPanel adminPanel, DefaultTableModel usersTableModel) {
 
         //validations
+
         UserType userType = adminPanel.typeComboBox.getSelectedIndex() == 0 ? UserType.MANAGER :
                 UserType.WAITRESS; //0-MANAGER, 1-WAITRESS
         User newUser = new User(adminPanel.getNameField().getText(), adminPanel.getPinField().getText(),
@@ -140,7 +162,7 @@ public class BarDataProvider {
     }
 
 
-    public void deleteUserAction(BasePanel basePanel, UsersPanel adminPanel, DefaultTableModel usersTableModelBase) {
+    public void deleteUserAction(BasePanel basePanel, UsersPanel adminPanel) {
         if (adminPanel.usersTable.getSelectedRow() < 0) {  //ако нямаме селектиран ред
             basePanel.showError("Нямате избран потебител");
             return;

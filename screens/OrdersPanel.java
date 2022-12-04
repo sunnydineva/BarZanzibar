@@ -261,6 +261,7 @@ public class OrdersPanel extends BasePanel {
         boolean isFound = false;
         for (Product prd : currentlySelectedOrder().getOrderProducts()) {
             System.out.println(prd);
+
             if (prd.getBrand().equals(productBrand)) {
                 prd.setQuantity(prd.getQuantity() + 1);
                 isFound = true;
@@ -270,7 +271,9 @@ public class OrdersPanel extends BasePanel {
         if (!isFound) {
             for (Product product : frame.dataProvider.products) {
                 if (product.getBrand().equals(productBrand)) {
-                    currentlySelectedOrder().getOrderProducts().add(product);
+                    Product product1 = new Product(product.getUid(), product.getType(),
+                            product.getSubType(), product.getBrand(), product.getPrice(), product.getQuantity()) ;
+                    currentlySelectedOrder().getOrderProducts().add(product1);
                 }
             }
         }

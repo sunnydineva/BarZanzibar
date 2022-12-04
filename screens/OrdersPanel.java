@@ -321,6 +321,7 @@ public class OrdersPanel extends BasePanel {
         }
     }
 
+
     /* makes discount for an order within min and max */
     public void discountAction() {
         if (currentlySelectedOrder().getPercentDiscount() > 0) { //if there is a discount

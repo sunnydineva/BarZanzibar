@@ -22,6 +22,4 @@ public class BarFrame extends JFrame {
         currentLanguage = new BarLanguages(this);
         router.showLogin(); //shows the first screen
     }
-
-
 }

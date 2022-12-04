@@ -1,24 +1,26 @@
 package frames;
 
-//ArrayLists, Data methods
-
 import models.*;
 import screens.UsersPanel;
 import screens.BasePanel;
 
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BarDataProvider {
     public ArrayList<User> users;
     public ArrayList<User> searchedUsers;
     public ArrayList<Order> orders;
-      public ArrayList<Integer> tables;
-    public ArrayList<Product> products;
+    public ArrayList<Integer> tables;
+    public List<Product> products;
     public ArrayList<Category> categories; //for JButtons
     public ArrayList<String> subCategories; //for JButtons
     public ArrayList<String> productBrands; //for JButtons
-
     public User loggedUser;
     public boolean isSearchingUsers;
 
@@ -34,7 +36,6 @@ public class BarDataProvider {
         users.add(user2);
         users.add(user3);
 
-
         tables = new ArrayList<>();
         for (int i = 0; i <= 10; i++) {  // 10 маси
             tables.add(i + 11);
@@ -42,11 +43,6 @@ public class BarDataProvider {
 
         getProducts();
 
-
-    }
-
-    public void isUniquePIN() {
-        // при логване да не ми се повтаря ПИН-а
     }
 
     public boolean isCorrectLogin(String pin) {
@@ -57,6 +53,17 @@ public class BarDataProvider {
             }
         }
         return false;
+    }
+
+    public boolean isUniquePIN(String newPin) {
+        boolean isUniquePIN = true;
+        for (User user : users) {
+            if (user.getPinCode().equals(newPin)) {
+                isUniquePIN = false;
+                break;
+            }
+        }
+        return isUniquePIN;
     }
 
     public void fetchUsers(DefaultTableModel model) { //рефреш на таблицата; прави редове
@@ -100,8 +107,7 @@ public class BarDataProvider {
                 if (order.getPercentDiscount() > 0) {
                     row[2] = order.getTotalPrice(true);
                     //totalSumForTable += Double.parseDouble(order.getTotalPrice(true));
-                }
-                else {
+                } else {
                     row[2] = order.getTotalPrice(false);
                     //totalSumForTable += Double.parseDouble(order.getTotalPrice(false));
                 }
@@ -114,17 +120,15 @@ public class BarDataProvider {
                 model.addRow(finalRow);
 
  */
-
             }
         }
-
 
 
     }
 
     public void fetchProducts(DefaultTableModel model, Order order) {
         model.setRowCount(0);
-        for (Product product : order.getProducts()) {
+        for (Product product : order.getOrderProducts()) {
             String[] row = new String[3];
             row[0] = product.getBrand();
             row[1] = Integer.toString(product.getQuantity());
@@ -149,18 +153,21 @@ public class BarDataProvider {
         fetchOrders(ordersTableModel, selectedTableNumber);
     }
 
-    public void adduserAction(UsersPanel adminPanel, DefaultTableModel usersTableModel) {
-
-        //validations
-
+    public void adduserAction(UsersPanel adminPanel, DefaultTableModel usersTableModel, String uniquePinErrorMessage) {
         UserType userType = adminPanel.typeComboBox.getSelectedIndex() == 0 ? UserType.MANAGER :
                 UserType.WAITRESS; //0-MANAGER, 1-WAITRESS
+
         User newUser = new User(adminPanel.getNameField().getText(), adminPanel.getPinField().getText(),
                 adminPanel.getPhoneField().getText(), userType);
-        users.add(newUser);
-        fetchUsers(usersTableModel);
-    }
 
+        Pattern pattern = Pattern.compile("\\d{4}");
+        Matcher matcher = pattern.matcher(newUser.getPinCode());
+        if (isUniquePIN(newUser.getPinCode()) && matcher.matches()) {
+            users.add(newUser);
+            fetchUsers(usersTableModel);
+        } else JOptionPane.showMessageDialog(null, uniquePinErrorMessage,
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
 
     public void deleteUserAction(BasePanel basePanel, UsersPanel adminPanel) {
         if (adminPanel.usersTable.getSelectedRow() < 0) {  //ако нямаме селектиран ред
@@ -190,11 +197,9 @@ public class BarDataProvider {
             isSearchingUsers = false;
             fetchUsers(adminPanel.usersTableModel);
         }
-
     }
 
-    public ArrayList<Product> getProducts() {
-        products = new ArrayList<>();
+    public List<Product> getProducts() {
         Product p1 = new Product("1", ProductType.ALCOHOLIC, "уиски", "Johnie Walker", 6.47, 1);
         Product p2 = new Product("2", ProductType.ALCOHOLIC, "уиски", "Jack Daniels", 5.47, 1);
         Product p3 = new Product("3", ProductType.ALCOHOLIC, "уиски", "Tullamore Dew", 7.20, 1);
@@ -211,25 +216,8 @@ public class BarDataProvider {
         Product p14 = new Product("4", ProductType.FOOD, "ядки", "фъстъци", 7, 1);
         Product p15 = new Product("4", ProductType.FOOD, "сандвичи", "вегетариански", 8, 1);
         Product p16 = new Product("4", ProductType.FOOD, "сандвичи", "занзибарски", 10, 1);
-        Product p17 = new Product("4", ProductType.FOOD, "сандвичи", "картонен", 1, 1);
-
-        products.add(p1);
-        products.add(p2);
-        products.add(p3);
-        products.add(p4);
-        products.add(p5);
-        products.add(p6);
-        products.add(p7);
-        products.add(p8);
-        products.add(p9);
-        products.add(p10);
-        products.add(p11);
-        products.add(p12);
-        products.add(p13);
-        products.add(p14);
-        products.add(p15);
-        products.add(p16);
-        products.add(p17);
+        Product p17 = new Product("4", ProductType.FOOD, "сандвичи", "картонен", 1, 1);//        products.add(p1);
+        products = Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17);
         return products;
 
     }

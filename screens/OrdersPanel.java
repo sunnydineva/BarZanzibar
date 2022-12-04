@@ -42,7 +42,6 @@ public class OrdersPanel extends BasePanel {
     public OrdersPanel(BarFrame frame) {
         super(frame);
 
-
         initializeHeader();
         initializeOrdersTable();
         initializeProductsTable();
@@ -57,7 +56,6 @@ public class OrdersPanel extends BasePanel {
 
         buttonX = frame.getWidth() / 2 - elementWidth / 2;
         buttonY = 100;
-
     }
 
     /* Create, Settle, Table, Waitress */
@@ -261,7 +259,8 @@ public class OrdersPanel extends BasePanel {
             return;
         }
         boolean isFound = false;
-        for (Product prd : currentlySelectedOrder().getProducts()) {
+        for (Product prd : currentlySelectedOrder().getOrderProducts()) {
+            System.out.println(prd);
             if (prd.getBrand().equals(productBrand)) {
                 prd.setQuantity(prd.getQuantity() + 1);
                 isFound = true;
@@ -271,7 +270,7 @@ public class OrdersPanel extends BasePanel {
         if (!isFound) {
             for (Product product : frame.dataProvider.products) {
                 if (product.getBrand().equals(productBrand)) {
-                    currentlySelectedOrder().getProducts().add(product);
+                    currentlySelectedOrder().getOrderProducts().add(product);
                 }
             }
         }
@@ -286,7 +285,8 @@ public class OrdersPanel extends BasePanel {
             showError(plusMinusProductErrorMessage);
             return;
         }
-        Product prd = currentlySelectedOrder().getProducts().get(productsTable.getSelectedRow());
+        Product prd = currentlySelectedOrder().getOrderProducts().get(productsTable.getSelectedRow());
+        System.out.println(prd);
         int currentlySelectedProductRow = productsTable.getSelectedRow();
         prd.setQuantity(prd.getQuantity() + 1);
         if (prd.getQuantity() % 10 == 0) showError("Стига помпи плюса:P"); // my sweet joke
@@ -303,9 +303,9 @@ public class OrdersPanel extends BasePanel {
             return;
         }
         int currentlySelectedProductRow = productsTable.getSelectedRow();
-        Product prd = currentlySelectedOrder().getProducts().get(productsTable.getSelectedRow());
+        Product prd = currentlySelectedOrder().getOrderProducts().get(productsTable.getSelectedRow());
         if (prd.getQuantity() == 1) { // removes the product from order, prevents of negative quantity
-            currentlySelectedOrder().getProducts().remove(productsTable.getSelectedRow());
+            currentlySelectedOrder().getOrderProducts().remove(productsTable.getSelectedRow());
             if (!(productsTable.getColumnCount() == 0)) { //select the upper row after removing the last
                 currentlySelectedProductRow -= 1;
             }

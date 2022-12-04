@@ -15,18 +15,22 @@ public class UsersPanel extends BasePanel {
     private JTextField nameField;
     private JTextField pinField;
     private JTextField phoneField;
+    private JLabel nameLabel;
+    private JLabel pinLabel;
+    private JLabel phoneLabel;
     private JTextField searchField;
     private JButton addButton;
     private JButton deleteButton;
     public JComboBox<String> typeComboBox;
     public DefaultTableModel usersTableModel;
     public JTable usersTable;
+    String uniquePinErrorMessage;
     public UsersPanel(BarFrame frame) {
         super(frame);
 
 
         initializeUsersTable();
-        initializeFields();
+        initializeFieldsAndLabels();
         initializeButtons();
         initializeSearchField();
 
@@ -51,9 +55,13 @@ public class UsersPanel extends BasePanel {
     }
 
 
-    public void initializeFields() {
+    public void initializeFieldsAndLabels() {
+        nameLabel = new JLabel("Име");
+        nameLabel.setBounds(0, 230, elementWidth/2, 40);
+        add(nameLabel);
+
         nameField = new JTextField("Име");
-        nameField.setBounds(0, 230, elementWidth, 40);
+        nameField.setBounds(nameLabel.getX() + nameLabel.getWidth(), 230, elementWidth/2, 40);
         add(nameField);
 
         pinField = new JTextField("ПИН");
@@ -75,13 +83,14 @@ public class UsersPanel extends BasePanel {
         deleteButton = new JButton("Изтрий"); //уволняваме
         deleteButton.setBounds(frame.getWidth() / 2 - elementWidth / 2, 230 + 50,
                 elementWidth, 40);
-        deleteButton.addActionListener(e -> frame.dataProvider.deleteUserAction(this, this, usersTableModel));
+        deleteButton.addActionListener(e -> frame.dataProvider.deleteUserAction(this, this));
         add(deleteButton);
 
        addButton = new JButton("Добави");
         selectedType = null;
         addButton.setBounds(0, 230 + 160 + 40, elementWidth, 40);
-        addButton.addActionListener(e -> frame.dataProvider.adduserAction(this, usersTableModel));
+        addButton.addActionListener(e ->
+                frame.dataProvider.adduserAction(this, usersTableModel, uniquePinErrorMessage));
         add(addButton);
 
     }
@@ -107,7 +116,7 @@ public class UsersPanel extends BasePanel {
             }
 
             @Override
-            public void changedUpdate(DocumentEvent e) { //когато нещо се промени визуално по текстовото поле
+            public void changedUpdate(DocumentEvent e) {
 
             }
         });
@@ -117,24 +126,17 @@ public class UsersPanel extends BasePanel {
 
     public void bulgarianLanguage(){
 /* разваля ми fetchUsers
-
         nameField.setText("Име");
         phoneField.setText("Телефон");
         pinField.setText("ПИН");
         searchField.setText("Търсено име");
-
  */
-
-
-
         String[] columns = {"Име", "ПИН", "Телефон", "Тип"};
         usersTableModel.setColumnIdentifiers(columns);
-
         addButton.setText("Добави");
         deleteButton.setText("Изтрий");
-
+        uniquePinErrorMessage = "Невалиден ПИН номер! Изберете нов";
         repaint();
-
     }
     public void englishLanguage(){
 /*
@@ -142,15 +144,12 @@ public class UsersPanel extends BasePanel {
         phoneField.setText("Phone");
         pinField.setText("PIN");
         searchField.setText("Searched name");
-
  */
-
         addButton.setText("Add");
         deleteButton.setText("Remove");
-
         String[] columns = {"Name", "PIN", "Phone", "Level"};
         usersTableModel.setColumnIdentifiers(columns);
-
+        uniquePinErrorMessage = "Invalid PIN number. Please choose another combination";
         repaint();
     }
 

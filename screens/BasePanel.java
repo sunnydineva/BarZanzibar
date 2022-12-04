@@ -26,9 +26,6 @@ public class BasePanel extends JPanel {
         setLayout(null);
         setBackground(Color.gray);
 
-
-        //elementWidth = (frame.getWidth() - 32) / 3;
-        //elementWidth = Integer.parseInt(String.valueOf(Math.round(frame.getWidth() / 3.0)));
         elementWidth = (frame.getWidth()) / 3;
         elementHeight = 40; //buttons not more than 40 height
 
@@ -37,8 +34,6 @@ public class BasePanel extends JPanel {
         if (language == Language.BULGARIAN) {
             baseBulgarianLanguage();
         } else baseEnglishLanguage();
-
-
     }
 
 

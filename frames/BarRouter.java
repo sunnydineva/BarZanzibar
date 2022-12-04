@@ -37,7 +37,7 @@ public class BarRouter {
         this.frame.validate();
     }
 
-    public void showOrdersPanel() {
+    public void showOrdersPanel(int selectedTable) {
         OrdersPanel panel = new OrdersPanel(frame);
         this.frame.setContentPane(panel);
         this.frame.validate();

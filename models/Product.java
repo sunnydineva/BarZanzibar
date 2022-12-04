@@ -68,4 +68,8 @@ public class Product {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
+
+    public String toString(){
+        return brand + "-" +quantity;
+    }
 }

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Order {
     private String uid;
     private int tableNumber;
-    private ArrayList<Product> products;
+    private ArrayList<Product> orderProducts;
     private User waitress;
     private int percentDiscount;
     private int maxDiscount = 50;
@@ -14,13 +14,13 @@ public class Order {
     public Order(String uid, int tableNumber, User waitress) {
         this.uid = uid;
         this.tableNumber = tableNumber;
-        this.products = new ArrayList<>();
+        this.orderProducts = new ArrayList<>();
         this.waitress = waitress;
     }
 
     public String getTotalPrice(boolean withDiscount){
         double sum = 0;
-        for (Product product: products) {
+        for (Product product: orderProducts) {
             sum += product.getPrice() * product.getQuantity();
         }
         if(withDiscount) {
@@ -33,7 +33,7 @@ public class Order {
 
     public double getTotalPriceDouble(boolean withDiscount){
         double sum = 0;
-        for(Product product : products){
+        for(Product product : orderProducts){
             sum += product.getPrice() * product.getQuantity();
         }
         if(withDiscount) {
@@ -45,7 +45,7 @@ public class Order {
 
     public String getProductsCount(){
         int count = 0;
-        for(Product product : products){
+        for(Product product : orderProducts){
             count += product.getQuantity();
         }
         return Integer.toString(count);
@@ -61,12 +61,12 @@ public class Order {
         this.tableNumber = tableNumber;
     }
 
-    public ArrayList<Product> getProducts() {
-        return products;
+    public ArrayList<Product> getOrderProducts() {
+        return orderProducts;
     }
 
-    public void setProducts(ArrayList<Product> products) {
-        this.products = products;
+    public void setOrderProducts(ArrayList<Product> orderProducts) {
+        this.orderProducts = orderProducts;
     }
 
     public User getWaitress() {

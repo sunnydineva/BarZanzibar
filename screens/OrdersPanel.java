@@ -2,7 +2,6 @@ package screens;
 
 import frames.BarFrame;
 import models.*;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -90,7 +89,9 @@ public class OrdersPanel extends BasePanel {
         ordersTableModel.setColumnIdentifiers(cols);
         ordersTable = new JTable(ordersTableModel);
         ordersTable.getSelectionModel().addListSelectionListener(e -> showProductsForOrder());
+
         tableCellRenderer(ordersTable);
+
         JScrollPane ordersPane = new JScrollPane(ordersTable);
         ordersPane.setBounds(0, 65, elementWidth, frame.getHeight() - 65 - 100 - 10);
         add(ordersPane);
@@ -101,7 +102,6 @@ public class OrdersPanel extends BasePanel {
         String[] cols = {"Продукт", "Количество", "Цена"};
         productsTableModel = new DefaultTableModel();
         productsTableModel.setColumnIdentifiers(cols);
-
         productsTable = new JTable(productsTableModel);
         tableCellRenderer(productsTable);
         JScrollPane productsPane = new JScrollPane(productsTable);

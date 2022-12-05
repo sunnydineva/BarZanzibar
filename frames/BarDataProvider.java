@@ -66,6 +66,12 @@ public class BarDataProvider {
         return isUniquePIN;
     }
 
+    public boolean isCorrectPinPattern(User newUser){
+        Pattern pattern = Pattern.compile("\\d{4}");
+        Matcher matcher = pattern.matcher(newUser.getPinCode());
+        return matcher.matches();
+    }
+
     public void fetchUsers(DefaultTableModel model) { //рефреш на таблицата; прави редове
         model.setRowCount(0); //занулява таблицата, иначе се наслояват една под друга
         ArrayList<User> activeUserList;
@@ -112,18 +118,22 @@ public class BarDataProvider {
                     //totalSumForTable += Double.parseDouble(order.getTotalPrice(false));
                 }
                 model.addRow(row);
-
 /*
-                String[] finalRow = new String[3];
-                finalRow[1] = "Общо за масата";
-                finalRow[2] = Double.toString(totalSumForTable);
-                model.addRow(finalRow);
-
+                String[] discountRow = new String[3];
+                discountRow[0] =  "";
+                discountRow[1] = "Отстъпка: " + order.getPercentDiscount() + " %";
+                discountRow[2] = Double.toString(9.99);   //да смята
+                model.addRow(discountRow);
  */
             }
         }
-
-
+/*
+        String[] finalRow = new String[3];
+        finalRow[0] =  "";
+        finalRow[1] = "Общо за масата";
+        finalRow[2] = Double.toString(9.99);
+        model.addRow(finalRow);
+        */
     }
 
     public void fetchProducts(DefaultTableModel model, Order order) {
@@ -160,9 +170,7 @@ public class BarDataProvider {
         User newUser = new User(adminPanel.getNameField().getText(), adminPanel.getPinField().getText(),
                 adminPanel.getPhoneField().getText(), userType);
 
-        Pattern pattern = Pattern.compile("\\d{4}");
-        Matcher matcher = pattern.matcher(newUser.getPinCode());
-        if (isUniquePIN(newUser.getPinCode()) && matcher.matches()) {
+        if (isUniquePIN(newUser.getPinCode()) && isCorrectPinPattern(newUser)) {
             users.add(newUser);
             fetchUsers(usersTableModel);
         } else JOptionPane.showMessageDialog(null, uniquePinErrorMessage,

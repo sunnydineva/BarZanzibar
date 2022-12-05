@@ -102,7 +102,6 @@ public class BarDataProvider {
 
     public void fetchOrders(DefaultTableModel model, int tableNumber) {
         model.setRowCount(0);
-        //double totalSumForTable = 0;
         for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
             if (order.getTableNumber() == tableNumber) {
@@ -111,29 +110,13 @@ public class BarDataProvider {
                 row[1] = order.getProductsCount();
 
                 if (order.getPercentDiscount() > 0) {
-                    row[2] = order.getTotalPrice(true);
-                    //totalSumForTable += Double.parseDouble(order.getTotalPrice(true));
+                    row[2] = order.getTotalPrice(true) + " " + order.getPercentDiscount() + "%";
                 } else {
                     row[2] = order.getTotalPrice(false);
-                    //totalSumForTable += Double.parseDouble(order.getTotalPrice(false));
                 }
                 model.addRow(row);
-/*
-                String[] discountRow = new String[3];
-                discountRow[0] =  "";
-                discountRow[1] = "Отстъпка: " + order.getPercentDiscount() + " %";
-                discountRow[2] = Double.toString(9.99);   //да смята
-                model.addRow(discountRow);
- */
             }
         }
-/*
-        String[] finalRow = new String[3];
-        finalRow[0] =  "";
-        finalRow[1] = "Общо за масата";
-        finalRow[2] = Double.toString(9.99);
-        model.addRow(finalRow);
-        */
     }
 
     public void fetchProducts(DefaultTableModel model, Order order) {
@@ -158,7 +141,7 @@ public class BarDataProvider {
                 }
             }
         }
-        Order order = new Order("1", selectedTableNumber, loggedUser);
+        Order order = new Order("1", selectedTableNumber, loggedUser); //autoNumber not available at the moment
         orders.add(order);
         fetchOrders(ordersTableModel, selectedTableNumber);
     }

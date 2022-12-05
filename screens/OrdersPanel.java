@@ -24,6 +24,7 @@ public class OrdersPanel extends BasePanel {
     JButton discountButton;
     public String table;
     public String createOrderMessage;
+    public String finishOrderMessage;
     public String createOrderSelectErrorMessage;
     public String createOrderFinishErrorMessage;
     public String plusMinusOrderErrorMessage;
@@ -249,8 +250,12 @@ public class OrdersPanel extends BasePanel {
     }
 
 
-    public void finishOrderAction() {
-
+    public void finishOrderAction() { //moves the order to table 0, because the lack of autonumber for order no.
+        boolean isYes = showQuestion(finishOrderMessage);
+        if(isYes){
+            currentlySelectedOrder().setTableNumber(0);
+            fetchTablesAndSelectOrder(currentlySelectedOrder());
+        }
     }
 
     public void addProductAction(String productBrand) {
@@ -348,6 +353,11 @@ public class OrdersPanel extends BasePanel {
         return frame.dataProvider.orders.get(currentlySelectedOrder);
     }
 
+    public int currentlySelectedOrderNumber() {
+        int currentlySelectedOrderRow = ordersTable.getSelectedRow();
+        return Integer.parseInt((String) ordersTable.getModel().getValueAt(currentlySelectedOrderRow, 0)) - 1;
+    }
+
     public void selectFirstRowOrderTable() {
         if (frame.dataProvider.orders.size() > 0) {
             for (Order order : frame.dataProvider.orders) {
@@ -392,6 +402,7 @@ public class OrdersPanel extends BasePanel {
         } catch (Exception ignored) {
         }
         createOrderMessage = "Отваряне на нова поръчка?";
+        finishOrderMessage = "Приключване на поръчка?";
         createOrderSelectErrorMessage = "Моля селектирайте поръчка";
         createOrderFinishErrorMessage = "Моля довършете предходната поръчка";
         plusMinusProductErrorMessage = "Моля селектирайте продукт";
@@ -418,6 +429,7 @@ public class OrdersPanel extends BasePanel {
         } catch (Exception ignored) {
         }
         createOrderMessage = "New order?";
+        finishOrderMessage = "Settle the order?";
         createOrderSelectErrorMessage = "Please select order";
         createOrderFinishErrorMessage = "Please finalize the previous order";
         plusMinusProductErrorMessage = "Please select product";

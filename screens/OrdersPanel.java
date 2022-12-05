@@ -91,7 +91,7 @@ public class OrdersPanel extends BasePanel {
         tableLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(tableLabel);
     }
-
+//ТОЗИ РАБОТИ
     public void initializeOrdersTable() {
         String cols[] = {"Поръчка", "Продукти", "Цена"};
         ordersTableModel = new DefaultTableModel();
@@ -111,6 +111,8 @@ public class OrdersPanel extends BasePanel {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+
+
     }
 
     public void initializeCategoryButtons() {  //product.productType

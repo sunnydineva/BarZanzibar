@@ -16,9 +16,10 @@ public class BarDataProvider {
     public ArrayList<User> users;
     public ArrayList<User> searchedUsers;
     public ArrayList<Order> orders;
-    public ArrayList<Integer> tables;
+    //public ArrayList<Integer> tables;
+    public List<Table> tables;
     public List<Product> products;
-    public ArrayList<Category> categories; //for JButtons
+    public List<Category> categories; //for JButtons
     public ArrayList<String> subCategories; //for JButtons
     public ArrayList<String> productBrands; //for JButtons
     public User loggedUser;
@@ -36,10 +37,24 @@ public class BarDataProvider {
         users.add(user2);
         users.add(user3);
 
+        Table table1 = new Table(11, false);
+        Table table2 = new Table(12, false);
+        Table table3 = new Table(13, false);
+        Table table4 = new Table(14, false);
+        Table table5 = new Table(15, false);
+        Table table6 = new Table(16, false);
+        Table table7 = new Table(17, false);
+        Table table8 = new Table(18, false);
+        Table table9 = new Table(19, false);
+        Table table10 = new Table(20, false);
+        tables = Arrays.asList(table1, table2, table3, table4, table4, table6, table7, table8, table9, table10);
+
+        /* old version only with tableNumber w/o table status
         tables = new ArrayList<>();
         for (int i = 0; i <= 10; i++) {  // 10 маси
             tables.add(i + 11);
         }
+         */
 
         getProducts();
 
@@ -143,6 +158,9 @@ public class BarDataProvider {
         }
         Order order = new Order("1", selectedTableNumber, loggedUser); //autoNumber not available at the moment
         orders.add(order);
+        for(Table table : tables){
+            if (table.getTableNumber() == selectedTableNumber) table.setOccupied(true);
+        }
         fetchOrders(ordersTableModel, selectedTableNumber);
     }
 
@@ -168,11 +186,8 @@ public class BarDataProvider {
         boolean isYes = basePanel.showQuestion("Сигуни ли сте, че искате да изтриете този потебител?");
         if (isYes) {
             ArrayList<User> activeUserList;
-            if (isSearchingUsers) {
-                activeUserList = searchedUsers;
-            } else {
-                activeUserList = users;
-            }
+            if (isSearchingUsers) activeUserList = searchedUsers;
+            else   activeUserList = users;
 
             User selectedUser = activeUserList.get(adminPanel.usersTable.getSelectedRow());
             if (selectedUser.getPhoneNumber().equals((loggedUser.getPhoneNumber()))) { // защото нямаме id
@@ -213,15 +228,20 @@ public class BarDataProvider {
 
     }
 
-    public ArrayList<Category> getCategories() {
-        categories = new ArrayList<>();
-        Category c1 = new Category("Алкохоли", ProductType.ALCOHOLIC);
-        Category c2 = new Category("Безалкохолни", ProductType.NONALCOHOLIC);
-        Category c3 = new Category("Храни", ProductType.FOOD);
-        categories.add(c1);
-        categories.add(c2);
-        categories.add(c3);
-        return categories;
+    public List<Category> getCategories(Language language) {
+        if (language == Language.BULGARIAN) {
+            Category c11 = new Category("Алкохоли", ProductType.ALCOHOLIC);
+            Category c21 = new Category("Безалкохолни", ProductType.NONALCOHOLIC);
+            Category c31 = new Category("Храни", ProductType.FOOD);
+            Category c41 = new Category("Цигари", ProductType.CIGARETTES);
+            return categories = Arrays.asList(c11, c21, c31, c41);
+        } else if (language == Language.ENGLISH) {
+            Category c12 = new Category("Alcohol", ProductType.ALCOHOLIC);
+            Category c22 = new Category("Non alcoholic", ProductType.NONALCOHOLIC);
+            Category c32 = new Category("Food", ProductType.FOOD);
+            Category c42 = new Category("Cigarettes", ProductType.CIGARETTES);
+            return categories = Arrays.asList(c12, c22, c32, c42);
+        } else return null;
     }
 
     public ArrayList<String> getSubCategories(ProductType productCategory) {

@@ -5,5 +5,5 @@ public enum ProductType {
     ALCOHOLIC,
     FOOD,
 
-    TAXMARKED //some products with banderoles with fixed price - cigarettes - discounts can not be applied
+    CIGARETTES //products with fixed price - discounts can not be applied
 }

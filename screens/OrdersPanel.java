@@ -2,6 +2,7 @@ package screens;
 
 import frames.BarFrame;
 import models.*;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -34,6 +35,7 @@ public class OrdersPanel extends BasePanel {
     public ArrayList<JButton> categoryButtons;
     public ArrayList<JButton> subTypeButtons;
     public ArrayList<JButton> productButtons;
+    public List categories;
     public ProductType selectedCategory;
     public int buttonX;
     public int buttonY;
@@ -90,9 +92,6 @@ public class OrdersPanel extends BasePanel {
         ordersTableModel.setColumnIdentifiers(cols);
         ordersTable = new JTable(ordersTableModel);
         ordersTable.getSelectionModel().addListSelectionListener(e -> showProductsForOrder());
-
-        tableCellRenderer(ordersTable);
-
         JScrollPane ordersPane = new JScrollPane(ordersTable);
         ordersPane.setBounds(0, 65, elementWidth, frame.getHeight() - 65 - 100 - 10);
         add(ordersPane);
@@ -104,7 +103,6 @@ public class OrdersPanel extends BasePanel {
         productsTableModel = new DefaultTableModel();
         productsTableModel.setColumnIdentifiers(cols);
         productsTable = new JTable(productsTableModel);
-        tableCellRenderer(productsTable);
         JScrollPane productsPane = new JScrollPane(productsTable);
         productsPane.setBounds(frame.getWidth() - elementWidth, 65, elementWidth - 15,
                 frame.getHeight() - 65 - 100 - 10);
@@ -112,21 +110,12 @@ public class OrdersPanel extends BasePanel {
 
     }
 
-    public void tableCellRenderer(JTable table) {
-        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
-        rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
-        table.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
-    }
-
     /* initialize buttons for every unique category product */
     public void initializeCategoryButtons() {
         int buttonX = frame.getWidth() / 2 - elementWidth / 2;
         int buttonY = 100;
         categoryButtons = new ArrayList<>();
-        for (Category category : frame.dataProvider.getCategories()) {
+        for (Category category : frame.dataProvider.getCategories(frame.language)) {
             JButton button = new JButton(category.title);
             button.addActionListener(e -> {
                 selectedCategory = category.type;
@@ -245,14 +234,16 @@ public class OrdersPanel extends BasePanel {
         if (isYes) {
             frame.dataProvider.createOrderAction(selectedTableNumber, ordersTableModel);
             selectLastCreatedRow(ordersTable);
-            initializeCategoryButtons();
+            Table currentTable = frame.dataProvider.tables.get(selectedTableNumber - 11); //the tables start from 10
+            if (ordersTable.getRowCount() == 1) { //if it is the first order for this table
+                initializeCategoryButtons();
+            }
         }
     }
 
-
     public void finishOrderAction() { //moves the order to table 0, because the lack of autonumber for order no.
         boolean isYes = showQuestion(finishOrderMessage);
-        if(isYes){
+        if (isYes) {
             currentlySelectedOrder().setTableNumber(0);
             fetchTablesAndSelectOrder(currentlySelectedOrder());
         }
@@ -277,7 +268,7 @@ public class OrdersPanel extends BasePanel {
             for (Product product : frame.dataProvider.products) {
                 if (product.getBrand().equals(productBrand)) {
                     Product product1 = new Product(product.getUid(), product.getType(),
-                            product.getSubType(), product.getBrand(), product.getPrice(), product.getQuantity()) ;
+                            product.getSubType(), product.getBrand(), product.getPrice(), product.getQuantity());
                     currentlySelectedOrder().getOrderProducts().add(product1);
                 }
             }
@@ -327,7 +318,7 @@ public class OrdersPanel extends BasePanel {
     }
 
 
-    /* makes discount for an order within min and max */
+    /* makes discount for an order within min and max; Discount is not applied to productType CIGARETTES */
     public void discountAction() {
         if (currentlySelectedOrder().getPercentDiscount() > 0) { //if there is a discount
             showError(discountErrorMessage);
@@ -390,6 +381,15 @@ public class OrdersPanel extends BasePanel {
         }
     }
 
+    public void tableCellRenderer(JTable table) {
+        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+        rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
+        table.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+    }
+
     public void bulgarianLanguage() {
         table = "Маса: ";
         tableLabel.setText(table + selectedTableNumber);
@@ -414,6 +414,8 @@ public class OrdersPanel extends BasePanel {
         ordersTableModel.setColumnIdentifiers(orderCols);
         String[] productCols = {"Продукт", "Количество", "Цена"};
         productsTableModel.setColumnIdentifiers(productCols);
+        tableCellRenderer(ordersTable);
+        tableCellRenderer(productsTable);
 
     }
 
@@ -441,6 +443,8 @@ public class OrdersPanel extends BasePanel {
         ordersTableModel.setColumnIdentifiers(orderCols);
         String[] productCols = {"Product", "Quantity", "Price"};
         productsTableModel.setColumnIdentifiers(productCols);
+        tableCellRenderer(ordersTable);
+        tableCellRenderer(productsTable);
 
         repaint();
     }

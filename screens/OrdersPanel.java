@@ -68,7 +68,7 @@ public class OrdersPanel extends BasePanel {
         add(createButton);
 
         finishButton = new JButton("Приключи");
-        finishButton.setBounds(frame.getWidth() - elementWidth, 15, elementWidth, 40);
+        finishButton.setBounds(frame.getWidth() - elementWidth, 15, elementWidth - 15, 40);
         finishButton.addActionListener(e -> finishOrderAction());
         add(finishButton);
 
@@ -190,150 +190,190 @@ public class OrdersPanel extends BasePanel {
 
     /* deletes the current array with buttons and goes to the superior */
     public void backAction(ArrayList<JButton> activeButtList) {
-        if (activeButtList == subTypeButtons) {
-            clearButtons(activeButtList);
-            initializeCategoryButtons();
-            repaint();
-        } else if (activeButtList == productButtons) {
-            clearButtons(activeButtList);
-            initializeSubProductsButtons(selectedCategory);
-            repaint();
-        }
+        if (activeButtList == subTypeButtons) initializeCategoryButtons();
+        else if (activeButtList == productButtons) initializeSubProductsButtons(selectedCategory);
+        clearButtons(activeButtList);
+        repaint();
     }
 
     /* buttons Plus, Minus, Discount, Back to tables */
     public void initializeFooter() {
+        int footerY = frame.getHeight() - 100;
 
         tablesButton = new JButton("Маси");
-        tablesButton.setBounds(0, frame.getHeight() - 100,
+        tablesButton.setBounds(0, footerY,
                 elementWidth, 40);
         tablesButton.addActionListener(e -> frame.router.showTables());
         add(tablesButton);
 
         plusButton = new JButton("+");
-        plusButton.setBounds(frame.getWidth() - elementWidth, frame.getHeight() - 100,
+        plusButton.setBounds(frame.getWidth() - elementWidth, footerY,
                 elementWidth / 3, 40);
         plusButton.addActionListener(e -> plusAction());
         add(plusButton);
 
         minusButton = new JButton("-");
-        minusButton.setBounds(plusButton.getX() + elementWidth / 3, frame.getHeight() - 100,
+        minusButton.setBounds(plusButton.getX() + elementWidth / 3, footerY,
                 elementWidth / 3, 40);
         minusButton.addActionListener(e -> minusAction());
         add(minusButton);
 
         discountButton = new JButton("Отстъпка");
-        discountButton.setBounds(plusButton.getX() + 2 * elementWidth / 3, frame.getHeight() - 100,
+        discountButton.setBounds(plusButton.getX() + 2 * elementWidth / 3, footerY,
                 elementWidth / 3 - 15, 40);
         discountButton.addActionListener(e -> discountAction());
         add(discountButton);
     }
 
     public void createOrderAction() {
-        boolean isYes = showQuestion(createOrderMessage);
+        boolean isYes = showQuestion(createOrderMessage); //asks for confirmation
         if (isYes) {
-            frame.dataProvider.createOrderAction(selectedTableNumber, ordersTableModel);
-            selectLastCreatedRow(ordersTable);
-            Table currentTable = frame.dataProvider.tables.get(selectedTableNumber - 11); //the tables start from 10
-            if (ordersTable.getRowCount() == 1) { //if it is the first order for this table
-                initializeCategoryButtons();
+            if(!(frame.dataProvider.isFinishedPreviousOrder(selectedTableNumber))) { //checks is the previous order has products
+                showError(createOrderFinishErrorMessage);
+                return;
             }
+
+            frame.dataProvider.createOrderAction(selectedTableNumber, ordersTableModel);
+
+            selectLastCreatedRow(ordersTable);
+            //Table currentTable = frame.dataProvider.tables.get(selectedTableNumber - 11); //the tables start from 10
+            if (ordersTable.getRowCount() == 1) initializeCategoryButtons();  //if it is the first order for this table
         }
     }
 
     public void finishOrderAction() { //moves the order to table 0, because the lack of autonumber for order no.
         boolean isYes = showQuestion(finishOrderMessage);
         if (isYes) {
-            currentlySelectedOrder().setTableNumber(0);
-            fetchTablesAndSelectOrder(currentlySelectedOrder());
+            int currentlySelectedRow = ordersTable.getSelectedRow();
+
+            int selectedTblNumber = currentlySelectedOrder().getTableNumber() - 11; //to be removed
+            currentlySelectedOrder().setTableNumber(0);//to be removed
+            frame.dataProvider.setTableOccupied(selectedTblNumber, false); //to be removed
+            frame.dataProvider.tables.get(selectedTblNumber).setOccupied(false);//to be removed
+
+            //frame.dataProvider.finishOrder(currentlySelectedOrder()); //to be de-commented
+
+            frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
+            selectRow(ordersTable, upperRow(ordersTable, currentlySelectedRow));
         }
     }
 
     public void addProductAction(String productBrand) {
-        if (ordersTable.getSelectedRow() < 0) {
+        if (isNoSelectedRow(ordersTable)) {
             showError(createOrderSelectErrorMessage);
             return;
         }
         boolean isFound = false;
         for (Product prd : currentlySelectedOrder().getOrderProducts()) {
-            System.out.println(prd);
-
             if (prd.getBrand().equals(productBrand)) {
-                prd.setQuantity(prd.getQuantity() + 1);
+                prd.setQuantity(prd.getQuantity() + 1);   //increase product quantity
                 isFound = true;
                 break;
             }
         }
-        if (!isFound) {
-            for (Product product : frame.dataProvider.products) {
-                if (product.getBrand().equals(productBrand)) {
-                    Product product1 = new Product(product.getUid(), product.getType(),
-                            product.getSubType(), product.getBrand(), product.getPrice(), product.getQuantity());
-                    currentlySelectedOrder().getOrderProducts().add(product1);
-                }
-            }
-        }
+        if (!isFound) currentlySelectedOrder().getOrderProducts().add(frame.dataProvider.newProduct(productBrand));
+
         fetchTablesAndSelectOrder(currentlySelectedOrder());
     }
 
     public void plusAction() {
-        if (ordersTable.getSelectedRow() < 0) {
-            showError(plusMinusOrderErrorMessage);
-            return;
-        } else if (productsTable.getSelectedRow() < 0) {
-            showError(plusMinusProductErrorMessage);
-            return;
-        }
+        if (!isValidPlusMinus()) return;
+
         Product prd = currentlySelectedOrder().getOrderProducts().get(productsTable.getSelectedRow());
-        System.out.println(prd);
+
         int currentlySelectedProductRow = productsTable.getSelectedRow();
+
         prd.setQuantity(prd.getQuantity() + 1);
-        if (prd.getQuantity() % 10 == 0) showError("Стига помпи плюса:P"); // my sweet joke
+        if (prd.getQuantity() > 10 && prd.getQuantity() % 10 == 0) showError("Стига помпи плюса:P"); // my sweet joke
+
         fetchTablesAndSelectOrder(currentlySelectedOrder());
-        productsTable.setRowSelectionInterval(currentlySelectedProductRow, currentlySelectedProductRow);
+        selectRow(productsTable, currentlySelectedProductRow);
     }
+
 
     public void minusAction() {
-        if (ordersTable.getSelectedRow() < 0) {
-            showError(plusMinusOrderErrorMessage);
-            return;
-        } else if (productsTable.getSelectedRow() < 0) {
-            showError(plusMinusProductErrorMessage);
-            return;
-        }
-        int currentlySelectedProductRow = productsTable.getSelectedRow();
-        Product prd = currentlySelectedOrder().getOrderProducts().get(productsTable.getSelectedRow());
-        if (prd.getQuantity() == 1) { // removes the product from order, prevents of negative quantity
-            currentlySelectedOrder().getOrderProducts().remove(productsTable.getSelectedRow());
-            if (!(productsTable.getColumnCount() == 0)) { //select the upper row after removing the last
-                currentlySelectedProductRow -= 1;
-            }
+        if (!isValidPlusMinus()) return;
+
+        Product product = currentlySelectedProduct();
+        int currentlySelectedRow = productsTable.getSelectedRow();
+
+        if (isLastProduct(product)) {
+            removeProduct(product);
+            currentlySelectedRow = upperRow(productsTable, currentlySelectedRow);
         } else {
-            prd.setQuantity(prd.getQuantity() - 1);
+            product.setQuantity(product.getQuantity() - 1);
         }
+
         fetchTablesAndSelectOrder(currentlySelectedOrder());
-        if (!(productsTable.getRowCount() == 0)) {
-            productsTable.setRowSelectionInterval(currentlySelectedProductRow, currentlySelectedProductRow);
-        }
+        selectRow(productsTable, currentlySelectedRow);
     }
 
+
+    public void removeProduct(Product product) {
+        currentlySelectedOrder().getOrderProducts().remove(productsTable.getSelectedRow());
+    }
+
+    public boolean isLastProduct(Product product) {
+        return (product.getQuantity() == 1);
+    }
+
+    public boolean isAnyRow(JTable table) {
+        return table.getRowCount() != 0;
+    }
+
+    public boolean isNoSelectedRow(JTable table) {
+        return (table.getSelectedRow() < 0);
+    }
+
+    public int upperRow(JTable table, int currentlySelectedRow) {
+        if (isAnyRow(table)) {
+            currentlySelectedRow -= 1;
+        }
+        return currentlySelectedRow;
+    }
+
+    public void selectRow(JTable table, int currentlySelectedRow) {
+        if (isAnyRow(table)) {
+            table.setRowSelectionInterval(currentlySelectedRow, currentlySelectedRow);
+        }
+    }
 
     /* makes discount for an order within min and max; Discount is not applied to productType CIGARETTES */
     public void discountAction() {
-        if (currentlySelectedOrder().getPercentDiscount() > 0) { //if there is a discount
+        if (isOrderDiscounted()) {
             showError(discountErrorMessage);
             return;
         }
-        int discount = Integer.parseInt(JOptionPane.showInputDialog(discountMessage));
-        if (discount > currentlySelectedOrder().getMaxDiscount() || discount < currentlySelectedOrder().getMinDiscount()) {
+        int discount = askDiscount();
+        if (!isValidDiscount(discount)) {
             showError(discountMessage);
-            currentlySelectedOrder().setPercentDiscount(discount);
-        } else {
-            currentlySelectedOrder().setPercentDiscount(discount);
+            discount = askDiscount();
         }
+        currentlySelectedOrder().setPercentDiscount(discount);
+
         int currentlySelectedRow = ordersTable.getSelectedRow();
         frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
         ordersTable.setRowSelectionInterval(currentlySelectedRow, currentlySelectedRow);
+    }
+
+    public boolean isOrderDiscounted() {
+        return (currentlySelectedOrder().getPercentDiscount() > 0);  //if there is a discount
+    }
+
+    public boolean isValidDiscount(int discount) {
+        return discount <= currentlySelectedOrder().getMaxDiscount() && discount >= currentlySelectedOrder().getMinDiscount();
+    }
+
+    public int askDiscount() {
+        return Integer.parseInt(JOptionPane.showInputDialog(discountMessage));
+    }
+
+    public boolean isOneRow(JTable table) {
+        return table.getRowCount() == 1;
+    }
+
+    public Product currentlySelectedProduct() {
+        return currentlySelectedOrder().getOrderProducts().get(productsTable.getSelectedRow());
     }
 
 
@@ -381,6 +421,19 @@ public class OrdersPanel extends BasePanel {
         }
     }
 
+    public boolean isValidPlusMinus() {
+        //if (ordersTable.getSelectedRow() < 0) {
+        if (isNoSelectedRow(ordersTable)) {
+            showError(plusMinusOrderErrorMessage);
+            return false;
+            //} else if (productsTable.getSelectedRow() < 0) {
+        } else if (isNoSelectedRow(productsTable)) {
+            showError(plusMinusProductErrorMessage);
+            return false;
+        }
+        return true;
+    }
+
     public void tableCellRenderer(JTable table) {
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
         rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
@@ -407,7 +460,7 @@ public class OrdersPanel extends BasePanel {
         createOrderFinishErrorMessage = "Моля довършете предходната поръчка";
         plusMinusProductErrorMessage = "Моля селектирайте продукт";
         plusMinusOrderErrorMessage = "Моля селектирайте поръчка";
-        discountMessage = "Моля въведете процент на отстъпка между 1 и 50";
+        discountMessage = "Моля въведете процент на отстъпка между 1 и 50. За цигари не се ползва отстъпка";
         discountErrorMessage = "Вече има приложена отстъпка.";
 
         String[] orderCols = {"Поръчка", "Продукти", "Цена"};

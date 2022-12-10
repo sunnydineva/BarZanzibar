@@ -5,13 +5,15 @@ import models.Language;
 import models.Table;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class TablePanel extends BasePanel implements ActionListener {
     public TablePanel(BarFrame frame) {
-        super(frame);
 
+        super(frame);
+        repaint();
         int buttonX = frame.getWidth() / 2 - 290; //  290 = (5*100+80)/2
         int buttonY = frame.getHeight() / 2 - 160; // 100
 
@@ -25,8 +27,7 @@ public class TablePanel extends BasePanel implements ActionListener {
             }
 
             JButton tableButton = new JButton(Integer.toString(table.getTableNumber()));
-
-            System.out.println(table.isOccupied());
+            tableStatus(table, tableButton);
 
             tableButton.addActionListener(this);
             tableButton.setBounds(buttonX, buttonY, 100, 100);
@@ -34,6 +35,12 @@ public class TablePanel extends BasePanel implements ActionListener {
             buttonX += 120; //60
 
         }
+    }
+    /* makes the label Red if the table is occupied */
+    public void tableStatus(Table table, JButton tableButton){ //makes the label Red if the table is occupied
+        if(table.isOccupied())tableButton.setForeground(Color.red);
+        else tableButton.setForeground(Color.black);
+        repaint();
     }
 
     @Override

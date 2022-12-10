@@ -17,7 +17,7 @@ public class BasePanel extends JPanel {
     public Language language;
     public static int elementWidth;
     public static int elementHeight;
-    public static int selectedTableNumber;
+    public static int selectedTableNumber; //the tables start from 10, and the real number is the label Number - 11
 
     public BasePanel(BarFrame frame) {
         this.frame = frame;
@@ -47,25 +47,19 @@ public class BasePanel extends JPanel {
         englishButton = new JButton("EN");
         englishButton.setBounds(cancelButton.getX(), frame.getHeight() - 100,
                 elementWidth / 2, elementHeight);
-        englishButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                frame.currentLanguage.englishLanguageAction();
-                reopenPanel();
+        englishButton.addActionListener(e -> {
+            frame.currentLanguage.englishLanguageAction();
+            reopenPanel();
 
-            }
         });
         add(englishButton);
 
         bulgarianButton = new JButton("BG");
         bulgarianButton.setBounds(englishButton.getX() + englishButton.getWidth(), englishButton.getY(),
                 elementWidth / 2, elementHeight);
-        bulgarianButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                frame.currentLanguage.bulgarianLanguageActon();
-                reopenPanel();
-            }
+        bulgarianButton.addActionListener(e -> {
+            frame.currentLanguage.bulgarianLanguageActon();
+            reopenPanel();
         });
         add(bulgarianButton);
 

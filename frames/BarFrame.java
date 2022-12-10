@@ -15,6 +15,7 @@ public class BarFrame extends JFrame {
     public BarFrame(){
         super("Bar Zanzibar");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setResizable(false);
         setSize(1000, 700);
         this.language = Language.BULGARIAN;
         dataProvider = new BarDataProvider();

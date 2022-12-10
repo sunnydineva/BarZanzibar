@@ -8,8 +8,8 @@ public class Order {
     private ArrayList<Product> orderProducts;
     private User waitress;
     private int percentDiscount;
-    private int maxDiscount = 50;
-    private int minDiscount = 1;
+    private static int maxDiscount = 50;
+    private static int minDiscount = 1;
 
     public Order(String uid, int tableNumber, User waitress) {
         this.uid = uid;
@@ -18,14 +18,19 @@ public class Order {
         this.waitress = waitress;
     }
 
-    public String getTotalPrice(boolean withDiscount){
+    public String getTotalPrice(boolean withDiscount){  //not available discount for CIGARETTES
         double sum = 0;
+        double sumCigarettes = 0;
         for (Product product: orderProducts) {
             sum += product.getPrice() * product.getQuantity();
+            if(product.getType() == ProductType.CIGARETTES) {
+                sumCigarettes += product.getPrice() * product.getQuantity();
+            }
         }
         if(withDiscount) {
+            sum -= sumCigarettes;
             double discount = sum * percentDiscount * 0.01;
-            sum = sum - discount;
+            sum = sum - discount + sumCigarettes;
         }
         return String.format("%.2f лв.", sum);
 
@@ -99,5 +104,13 @@ public class Order {
 
     public void setPercentDiscount(int percentDiscount) {
         this.percentDiscount = percentDiscount;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

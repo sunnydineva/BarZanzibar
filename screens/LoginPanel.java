@@ -7,8 +7,10 @@ import models.UserType;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-public class LoginPanel extends BasePanel {
+public class LoginPanel extends BasePanel{
     public JLabel welcomeLabel;
     public JLabel enterPassLabel;
     public JTextField pinField;
@@ -52,6 +54,37 @@ public class LoginPanel extends BasePanel {
         loginButton.setBounds(frame.getWidth() / 2 - elementWidth / 2, pinField.getY() + 50,
                 elementWidth, elementHeight);
         loginButton.addActionListener(e -> loginAction());
+        loginButton.setSelected(true);
+        loginButton.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (e.getKeyCode()==KeyEvent.VK_ENTER){
+                loginAction();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
+
+
+//        JButton submit = new JButton("Submit");
+//        submit.addActionListener(new SubmitButton(textBoxToEnterName));
+//        submit.addKeyListener(new SubmitButton(textBoxToEnterName));
+//        JPanel panelBottom = new JPanel();
+//        panelBottom.add(submit);
+//
+//        SubmitButton listener = new SubmitButton(textBoxToEnterName);
+//        textBoxToEnterName.addActionListener(listener);
+//        submit.addKeyListener(listener);
+
 
         InputMap im = loginButton.getInputMap();
         im.put(KeyStroke.getKeyStroke("ENTER"), "none");

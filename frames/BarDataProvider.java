@@ -47,7 +47,7 @@ public class BarDataProvider {
         Table table8 = new Table(18, false);
         Table table9 = new Table(19, false);
         Table table10 = new Table(20, false);
-        tables = Arrays.asList(table1, table2, table3, table4, table4, table6, table7, table8, table9, table10);
+        tables = Arrays.asList(table1, table2, table3, table4, table5, table6, table7, table8, table9, table10);
 
         /* old version only with tableNumber w/o table status
         tables = new ArrayList<>();
@@ -146,6 +146,9 @@ public class BarDataProvider {
     }
 
     public void createOrderAction(int selectedTableNumber, DefaultTableModel ordersTableModel) {
+
+        /*
+
         if (orders.size() > 0) {
             for (Order order : orders) {
                 if (order.getTableNumber() == selectedTableNumber
@@ -156,12 +159,59 @@ public class BarDataProvider {
                 }
             }
         }
+
+         */
         Order order = new Order("1", selectedTableNumber, loggedUser); //autoNumber not available at the moment
+
         orders.add(order);
-        for(Table table : tables){
-            if (table.getTableNumber() == selectedTableNumber) table.setOccupied(true);
-        }
+        setTableOccupied(selectedTableNumber, true);
         fetchOrders(ordersTableModel, selectedTableNumber);
+    }
+
+    public void finishOrder(Order order){ //under construction - waits for autoNumber from server
+        int selectedTableNumber = 0;
+
+        if (orders.size() > 0) {
+            for (Order ord: orders) {
+                if (ord.getUid().equals(order.getUid())) {
+                    selectedTableNumber = order.getTableNumber();
+                    orders.remove(ord);
+                    return;
+                }
+            }
+        }
+        setTableOccupied(selectedTableNumber, false);
+    }
+
+    public boolean isFinishedPreviousOrder(int selectedTableNumber){
+        if (orders.size() > 0) {
+            for (Order order : orders) {
+                if (order.getTableNumber() == selectedTableNumber
+                        && (order.getTotalPriceDouble(false)) == 0) {
+                 return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+    public void setTableOccupied(int selectedTableNumber, boolean isOccupied){
+        for(Table table : tables){
+            if (table.getTableNumber() == selectedTableNumber) table.setOccupied(isOccupied);
+        }
+    }
+
+    public Product newProduct(String productBrand){
+        Product product1 = null;
+        for (Product product : products) {
+            if (product.getBrand().equals(productBrand)) {
+                product1 = new Product(product.getUid(), product.getType(),
+                        product.getSubType(), product.getBrand(), product.getPrice(), product.getQuantity());
+                break;
+            }
+        }
+        return product1;
     }
 
     public void adduserAction(UsersPanel adminPanel, DefaultTableModel usersTableModel, String uniquePinErrorMessage) {
@@ -222,8 +272,10 @@ public class BarDataProvider {
         Product p14 = new Product("4", ProductType.FOOD, "ядки", "фъстъци", 7, 1);
         Product p15 = new Product("4", ProductType.FOOD, "сандвичи", "вегетариански", 8, 1);
         Product p16 = new Product("4", ProductType.FOOD, "сандвичи", "занзибарски", 10, 1);
-        Product p17 = new Product("4", ProductType.FOOD, "сандвичи", "картонен", 1, 1);//        products.add(p1);
-        products = Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17);
+        Product p17 = new Product("4", ProductType.FOOD, "сандвичи", "картонен", 100, 1);//        products.add(p1);
+        Product p18 = new Product("4", ProductType.CIGARETTES, "Davidoff", "white", 10, 1);//        products.add(p1);
+        Product p19 = new Product("4", ProductType.CIGARETTES, "Marlboro", "red", 20, 1);//        products.add(p1);
+        products = Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19);
         return products;
 
     }

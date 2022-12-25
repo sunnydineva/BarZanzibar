@@ -2,15 +2,18 @@ package screens;
 
 import frames.BarFrame;
 import models.Language;
+import org.w3c.dom.ls.LSOutput;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+
 
 public class ManagerPanel extends BasePanel {
 
     public JButton tableButton;
     public JButton userButton;
 
-    public ManagerPanel(BarFrame frame) {
+    public ManagerPanel(BarFrame frame){
         super(frame);
 
         initializeButtons();
@@ -18,6 +21,13 @@ public class ManagerPanel extends BasePanel {
         if (language == Language.BULGARIAN) {
             bulgarianLanguage();
         } else englishLanguage();
+
+
+
+
+
+
+
 
     }
 
@@ -33,6 +43,7 @@ public class ManagerPanel extends BasePanel {
                 elementWidth, elementHeight);
         userButton.addActionListener(e -> frame.router.showUsersPanel());
         add(userButton);
+
     }
 
     public void bulgarianLanguage(){
@@ -49,4 +60,5 @@ public class ManagerPanel extends BasePanel {
     public String toString() {
         return "ManagerPanel";
     }
+
 }

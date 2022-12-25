@@ -479,10 +479,7 @@ public class OrdersPanel extends BasePanel {
         finishButton.setText("Settle");
         discountButton.setText("Discount");
         tablesButton.setText("Tables");
-        try {
-            backButton.setText("Back");
-        } catch (Exception ignored) {
-        }
+        try {backButton.setText("Back");} catch (Exception ignored) {}
         createOrderMessage = "New order?";
         finishOrderMessage = "Settle the order?";
         createOrderSelectErrorMessage = "Please select order";

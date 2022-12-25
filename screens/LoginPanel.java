@@ -7,10 +7,9 @@ import models.UserType;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 
-public class LoginPanel extends BasePanel{
+public class LoginPanel extends BasePanel implements KeyListener, MouseListener {
     public JLabel welcomeLabel;
     public JLabel enterPassLabel;
     public JTextField pinField;
@@ -27,6 +26,34 @@ public class LoginPanel extends BasePanel{
         if (language == Language.BULGARIAN) {
             bulgarianLanguage();
         } else englishLanguage();
+
+
+        /*
+        this.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (e.getKeyCode()==KeyEvent.VK_ENTER){
+                    System.out.println("Hello");
+                    loginAction();
+                } else if(e.getKeyCode()== KeyEvent.VK_LEFT)
+                    System.out.println("left");
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode()== KeyEvent.VK_ENTER){
+                    System.out.println("Hello");
+                    loginAction();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                System.out.println(e.getKeyCode());
+            }
+        });
+
+         */
 
 
     }
@@ -48,48 +75,14 @@ public class LoginPanel extends BasePanel{
         pinField.setBounds(frame.getWidth() / 2 - elementWidth / 2, enterPassLabel.getY() + 50,
                 elementWidth, elementHeight);
         pinField.setHorizontalAlignment(JTextField.CENTER);
+        pinField.addKeyListener(this);
+        pinField.addMouseListener(this);
         add(pinField);
 
         loginButton = new JButton("");
         loginButton.setBounds(frame.getWidth() / 2 - elementWidth / 2, pinField.getY() + 50,
                 elementWidth, elementHeight);
         loginButton.addActionListener(e -> loginAction());
-        loginButton.setSelected(true);
-        loginButton.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                if (e.getKeyCode()==KeyEvent.VK_ENTER){
-                loginAction();
-                }
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
-
-
-//        JButton submit = new JButton("Submit");
-//        submit.addActionListener(new SubmitButton(textBoxToEnterName));
-//        submit.addKeyListener(new SubmitButton(textBoxToEnterName));
-//        JPanel panelBottom = new JPanel();
-//        panelBottom.add(submit);
-//
-//        SubmitButton listener = new SubmitButton(textBoxToEnterName);
-//        textBoxToEnterName.addActionListener(listener);
-//        submit.addKeyListener(listener);
-
-
-        InputMap im = loginButton.getInputMap();
-        im.put(KeyStroke.getKeyStroke("ENTER"), "none");
-        im.put(KeyStroke.getKeyStroke("released ENTER"), "released");
-
         add(loginButton);
     }
 
@@ -120,11 +113,53 @@ public class LoginPanel extends BasePanel{
         loginButton.setText("ВХОД");
     }
 
-
-
-
     @Override
     public String toString() {
         return "LoginPanel";
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            loginAction();
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (((JTextField) e.getSource()).getText().equals("Парола") ||
+                ((JTextField) e.getSource()).getText().equals("Enter PIN"))
+
+            ((JTextField) e.getSource()).setText(""); //cast, че е текстово поле
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 }

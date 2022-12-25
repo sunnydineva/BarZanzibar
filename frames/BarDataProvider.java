@@ -146,24 +146,9 @@ public class BarDataProvider {
     }
 
     public void createOrderAction(int selectedTableNumber, DefaultTableModel ordersTableModel) {
-
-        /*
-
-        if (orders.size() > 0) {
-            for (Order order : orders) {
-                if (order.getTableNumber() == selectedTableNumber
-                        && (order.getTotalPriceDouble(false)) == 0) {
-                    System.out.println("Dovurshete predhodnata poruchka"); // ДА ПРОМЕНЯ !!!!!!!!!!!!!!!!!!!!!!
-                    //basePanel.showError(createOrderFinishErrorMessage);  ДА ГО МЕСТЯ ЛИ ТОЗИ МЕТОД ИЛИ ДА СЕ ПРОБВАМ ДА ГО ДОСТЪПВАМ
-                    return;
-                }
-            }
-        }
-
-         */
         Order order = new Order("1", selectedTableNumber, loggedUser); //autoNumber not available at the moment
-
         orders.add(order);
+
         setTableOccupied(selectedTableNumber, true);
         fetchOrders(ordersTableModel, selectedTableNumber);
     }

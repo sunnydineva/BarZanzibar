@@ -9,8 +9,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
-public class UsersPanel extends BasePanel {
+public class UsersPanel extends BasePanel implements MouseListener {
 
     UserType selectedType;
     private JTextField nameField;
@@ -63,21 +65,23 @@ public class UsersPanel extends BasePanel {
 
         nameField = new JTextField("Име");
         nameField.setBounds(nameLabel.getX() + nameLabel.getWidth(), 230, elementWidth/2, 40);
+        nameField.addMouseListener(this);
         add(nameField);
 
         pinField = new JTextField("ПИН");
         pinField.setBounds(0, nameField.getY() + 50, elementWidth, 40);
+        pinField.addMouseListener(this);
         add(pinField);
 
         phoneField = new JTextField("Телефон");
         phoneField.setBounds(0, pinField.getY() + 50, elementWidth, 40);
+        phoneField.addMouseListener(this);
         add(phoneField);
 
         String[] options = {"Мениджър", "Сервитьор"};
         typeComboBox = new JComboBox<>(options);
         typeComboBox.setBounds(0, phoneField.getY() + 50, elementWidth, 40);
         add(typeComboBox);
-
     }
 
     public void initializeButtons() {
@@ -87,17 +91,24 @@ public class UsersPanel extends BasePanel {
         deleteButton.addActionListener(e -> frame.dataProvider.deleteUserAction(this, this));
         add(deleteButton);
 
-       addButton = new JButton("Добави");
+        addButton = new JButton("Добави");
         selectedType = null;
         addButton.setBounds(0, 230 + 160 + 40, elementWidth, 40);
         addButton.addActionListener(e ->
                 frame.dataProvider.adduserAction(this, usersTableModel, uniquePinErrorMessage));
         add(addButton);
-
     }
 
     public void initializeSearchField() {
-        searchField = new JTextField("Име");
+
+
+        frame.dataProvider.isSearchingUsers = false; // тук ли е проблемът с нефечванего на юзърите?
+
+
+
+
+        searchField = new JTextField("Търсено име");
+        searchField.addMouseListener(this);
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -126,17 +137,18 @@ public class UsersPanel extends BasePanel {
     }
 
     public void bulgarianLanguage(){
-/* разваля ми fetchUsers
+///* разваля ми fetchUsers
         nameField.setText("Име");
         phoneField.setText("Телефон");
         pinField.setText("ПИН");
-        searchField.setText("Търсено име");
- */
+        searchField.setText("Търсено име"); // ЕТО ГО МИЗЕРНИКЪТ
+ //*/
         String[] columns = {"Име", "ПИН", "Телефон", "Тип"};
         usersTableModel.setColumnIdentifiers(columns);
         addButton.setText("Добави");
         deleteButton.setText("Изтрий");
         uniquePinErrorMessage = "Невалиден ПИН номер! Изберете нов";
+
         repaint();
     }
     public void englishLanguage(){
@@ -213,6 +225,40 @@ public class UsersPanel extends BasePanel {
     @Override
     public String toString() {
         return "UsersPanel";
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (((JTextField) e.getSource()).getText().equals("Име") ||
+                ((JTextField) e.getSource()).getText().equals("Name") ||
+                ((JTextField) e.getSource()).getText().equals("ПИН") ||
+                ((JTextField) e.getSource()).getText().equals("PIN") ||
+                ((JTextField) e.getSource()).getText().equals("Телефон") ||
+                ((JTextField) e.getSource()).getText().equals("Phone") ||
+                ((JTextField) e.getSource()).getText().equals("Търсено име") ||
+                ((JTextField) e.getSource()).getText().equals("Searched name"))
+
+            ((JTextField) e.getSource()).setText("");
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 }
 

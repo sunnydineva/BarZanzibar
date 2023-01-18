@@ -248,8 +248,18 @@ public class OrdersPanel extends BasePanel {
 
             int selectedTblNumber = currentlySelectedOrder().getTableNumber() - 11; //to be removed
             currentlySelectedOrder().setTableNumber(0);//to be removed
-            frame.dataProvider.setTableOccupied(selectedTblNumber, false); //to be removed
-            frame.dataProvider.tables.get(selectedTblNumber).setOccupied(false);//to be removed
+
+            frame.dataProvider.setTableOccupied(selectedTblNumber, false); //to be removed   // тук не работи?????
+
+            frame.dataProvider.tables.get(selectedTblNumber).setOccupied(false);//to be removed //това работи..
+
+            // първият ми не сменя статуса на приключена, а втория работи.
+            // Да си оправя метода setTableOccupied
+            // да работи и за масата да не е червена
+            // Когато приключвам един от няколко ордъра на маса ми я дава като свободна
+            // Необходима ми е проверка дали имам поръчки за масата преди да я дам като свободна
+
+
 
             //frame.dataProvider.finishOrder(currentlySelectedOrder()); //to be de-commented
 
@@ -326,7 +336,7 @@ public class OrdersPanel extends BasePanel {
     }
 
     public int upperRow(JTable table, int currentlySelectedRow) {
-        if (isAnyRow(table)) {
+        if (isAnyRow(table) && !isOneRow(table)) {
             currentlySelectedRow -= 1;
         }
         return currentlySelectedRow;

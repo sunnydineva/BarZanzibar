@@ -165,7 +165,17 @@ public class BarDataProvider {
                 }
             }
         }
+
         setTableOccupied(selectedTableNumber, false);
+    }
+
+    public boolean isLastOrderForTable(int tableNumber){
+        for(Order order : orders){
+            if(order.getTableNumber() == tableNumber){
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean isFinishedPreviousOrder(int selectedTableNumber){
@@ -183,7 +193,16 @@ public class BarDataProvider {
 
     public void setTableOccupied(int selectedTableNumber, boolean isOccupied){
         for(Table table : tables){
-            if (table.getTableNumber() == selectedTableNumber) table.setOccupied(isOccupied);
+            if (table.getTableNumber() == selectedTableNumber) {
+                table.setOccupied(isOccupied);
+            }
+
+
+            //break; //ЗАЩО ТОЗИ БРЕЙК МИ ПРЕЧИ НА ОЦВЕТЯВАНЕТО???????????
+
+
+
+
         }
     }
 

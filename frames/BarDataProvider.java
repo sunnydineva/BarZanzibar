@@ -18,6 +18,7 @@ public class BarDataProvider {
     public ArrayList<Order> orders;
     //public ArrayList<Integer> tables;
     public List<Table> tables;
+    public static int tableNumberCorrective;
     public List<Product> products;
     public List<Category> categories; //for JButtons
     public ArrayList<String> subCategories; //for JButtons
@@ -49,6 +50,8 @@ public class BarDataProvider {
         Table table10 = new Table(20, false);
         tables = Arrays.asList(table1, table2, table3, table4, table5, table6, table7, table8, table9, table10);
 
+        tableNumberCorrective = 11; //for manipulating List<Table> tables / table numbers starts from 11
+
         /* old version only with tableNumber w/o table status
         tables = new ArrayList<>();
         for (int i = 0; i <= 10; i++) {  // 10 маси
@@ -57,7 +60,6 @@ public class BarDataProvider {
          */
 
         getProducts();
-
     }
 
     public boolean isCorrectLogin(String pin) {
@@ -87,8 +89,8 @@ public class BarDataProvider {
         return matcher.matches();
     }
 
-    public void fetchUsers(DefaultTableModel model) { //рефреш на таблицата; прави редове
-        model.setRowCount(0); //занулява таблицата, иначе се наслояват една под друга
+    public void fetchUsers(DefaultTableModel model) {
+        model.setRowCount(0);
         ArrayList<User> activeUserList;
         if (isSearchingUsers) {
             activeUserList = new ArrayList<>(searchedUsers);
@@ -96,11 +98,11 @@ public class BarDataProvider {
             activeUserList = new ArrayList<>(users);
         }
         for (User user : activeUserList) {
-            String[] row = new String[4]; // на реда имаме 4 стойности - име, пин, телефон, тип
+            String[] row = new String[4];
             row[0] = user.getName();
             row[1] = user.getPinCode();
             row[2] = user.getPhoneNumber();
-            row[3] = user.getUserRole(); //userType в String
+            row[3] = user.getUserRole(); //userType as String
             model.addRow(row);
 
         }
@@ -110,7 +112,7 @@ public class BarDataProvider {
         searchedUsers = new ArrayList<>();
         for (User user : users) {
             if (user.getName().toLowerCase().contains(searchedText.toLowerCase())) {
-                searchedUsers.add(user); //добавям в дублирания арей
+                searchedUsers.add(user);
             }
         }
     }
@@ -148,8 +150,7 @@ public class BarDataProvider {
     public void createOrderAction(int selectedTableNumber, DefaultTableModel ordersTableModel) {
         Order order = new Order("1", selectedTableNumber, loggedUser); //autoNumber not available at the moment
         orders.add(order);
-
-        setTableOccupied(selectedTableNumber, true);
+        tables.get(selectedTableNumber - tableNumberCorrective).setOccupied(true);
         fetchOrders(ordersTableModel, selectedTableNumber);
     }
 
@@ -166,16 +167,26 @@ public class BarDataProvider {
             }
         }
 
-        setTableOccupied(selectedTableNumber, false);
+        tables.get(selectedTableNumber).setOccupied(false);
     }
 
-    public boolean isLastOrderForTable(int tableNumber){
+    public boolean isLastOrderForTable(int tableNumber){ // по-добре да проверявам наличните редове в таблицата с ордъри
+        int counterOrdersForTable = 0;
         for(Order order : orders){
-            if(order.getTableNumber() == tableNumber){
-                return false;
+            if(order.getTableNumber() == (tableNumber)){
+                counterOrdersForTable ++;
+                if(counterOrdersForTable == 2){
+                    break;
+                }
             }
         }
-        return true;
+        return  (counterOrdersForTable == 1);
+    }
+
+    public void vacatingTable(int selectedTableNumber) {
+        if (isLastOrderForTable(selectedTableNumber)) {
+            tables.get(selectedTableNumber - tableNumberCorrective).setOccupied(false);//to be removed //това работи..
+        }
     }
 
     public boolean isFinishedPreviousOrder(int selectedTableNumber){
@@ -188,22 +199,6 @@ public class BarDataProvider {
             }
         }
         return true;
-    }
-
-
-    public void setTableOccupied(int selectedTableNumber, boolean isOccupied){
-        for(Table table : tables){
-            if (table.getTableNumber() == selectedTableNumber) {
-                table.setOccupied(isOccupied);
-            }
-
-
-            //break; //ЗАЩО ТОЗИ БРЕЙК МИ ПРЕЧИ НА ОЦВЕТЯВАНЕТО???????????
-
-
-
-
-        }
     }
 
     public Product newProduct(String productBrand){

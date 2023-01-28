@@ -1,11 +1,8 @@
 package frames;
 
-
 import models.Language;
 import screens.BasePanel;
 import screens.LoginPanel;
-
-import javax.swing.*;
 
 public class BarLanguages {
     public LoginPanel loginPanel;

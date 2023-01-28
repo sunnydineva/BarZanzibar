@@ -1,13 +1,10 @@
 package screens;
 
 import frames.BarFrame;
-import frames.BarLanguages;
 import models.Language;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 
 public class BasePanel extends JPanel {
     public BarFrame frame;
@@ -36,7 +33,6 @@ public class BasePanel extends JPanel {
         } else baseEnglishLanguage();
     }
 
-
     public void initializeBaseButtons() {
         cancelButton = new JButton("Cancel");
         cancelButton.setBounds(frame.getWidth() / 2 - elementWidth / 2, frame.getHeight() - 150,
@@ -62,8 +58,6 @@ public class BasePanel extends JPanel {
             reopenPanel();
         });
         add(bulgarianButton);
-
-
     }
 
     public void reopenPanel() {
@@ -78,8 +72,6 @@ public class BasePanel extends JPanel {
         } else if (frame.getContentPane().toString().equals("OrdersPanel")) {
             frame.router.showOrdersPanel(selectedTableNumber);
         }
-
-
     }
 
     public void baseEnglishLanguage() {
@@ -98,7 +90,5 @@ public class BasePanel extends JPanel {
         int result = JOptionPane.showConfirmDialog(null, message, "Attention",
                 JOptionPane.YES_NO_OPTION);
         return result == JOptionPane.YES_OPTION;
-
     }
-
 }

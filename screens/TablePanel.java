@@ -1,9 +1,7 @@
 package screens;
 
 import frames.BarFrame;
-import models.Language;
 import models.Table;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -39,7 +37,7 @@ public class TablePanel extends BasePanel implements ActionListener {
     /* makes the label Red if the table is occupied */
     public void tableStatus(Table table, JButton tableButton){ //makes the label Red if the table is occupied
         if(table.isOccupied())tableButton.setForeground(Color.red);
-        else tableButton.setForeground(Color.black);
+        else tableButton.setForeground(Color.BLACK);
         repaint();
     }
 
@@ -47,7 +45,6 @@ public class TablePanel extends BasePanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String tableNumberString = ((JButton)e.getSource()).getText();
         selectedTableNumber = Integer.parseInt(tableNumberString);
-
         frame.router.showOrdersPanel(selectedTableNumber);
     }
 

@@ -35,7 +35,6 @@ public class OrdersPanel extends BasePanel {
     public ArrayList<JButton> categoryButtons;
     public ArrayList<JButton> subTypeButtons;
     public ArrayList<JButton> productButtons;
-    public List categories;
     public ProductType selectedCategory;
     public int buttonX;
     public int buttonY;
@@ -225,18 +224,29 @@ public class OrdersPanel extends BasePanel {
         add(discountButton);
     }
 
+    public void selectFirstRowOrderTable() {
+        if (frame.dataProvider.orders.size() > 0) {
+            for (Order order : frame.dataProvider.orders) {
+                if (order.getTableNumber() == selectedTableNumber) {
+                    ordersTable.setRowSelectionInterval(0, 0);
+                    initializeCategoryButtons();
+                    break;
+                }
+            }
+        }
+    }
+
+    /* create, finish order, manipulating products */
     public void createOrderAction() {
         boolean isYes = showQuestion(createOrderMessage); //asks for confirmation
         if (isYes) {
-            if(!(frame.dataProvider.isFinishedPreviousOrder(selectedTableNumber))) { //checks is the previous order has products
+            if (!(frame.dataProvider.isFinishedPreviousOrder(selectedTableNumber))) { //checks is the previous order has products
                 showError(createOrderFinishErrorMessage);
                 return;
             }
-
             frame.dataProvider.createOrderAction(selectedTableNumber, ordersTableModel);
-
             selectLastCreatedRow(ordersTable);
-            //Table currentTable = frame.dataProvider.tables.get(selectedTableNumber - 11); //the tables start from 10
+            //Table currentTable = frame.dataProvider.tables.get(selectedTableNumber - tableNumberCorrective); //the tables start from 10
             if (ordersTable.getRowCount() == 1) initializeCategoryButtons();  //if it is the first order for this table
         }
     }
@@ -245,26 +255,13 @@ public class OrdersPanel extends BasePanel {
         boolean isYes = showQuestion(finishOrderMessage);
         if (isYes) {
             int currentlySelectedRow = ordersTable.getSelectedRow();
-
-            int selectedTblNumber = currentlySelectedOrder().getTableNumber() - 11; //to be removed
-            currentlySelectedOrder().setTableNumber(0);//to be removed
-
-            frame.dataProvider.setTableOccupied(selectedTblNumber, false); //to be removed   // тук не работи?????
-
-            frame.dataProvider.tables.get(selectedTblNumber).setOccupied(false);//to be removed //това работи..
-
-            // първият ми не сменя статуса на приключена, а втория работи.
-            // Да си оправя метода setTableOccupied
-            // да работи и за масата да не е червена
-            // Когато приключвам един от няколко ордъра на маса ми я дава като свободна
-            // Необходима ми е проверка дали имам поръчки за масата преди да я дам като свободна
-
-
-
+            frame.dataProvider.vacatingTable(selectedTableNumber);
+            currentlySelectedOrder().setTableNumber(0);//to be removed after finishOrder(currentlySelectedOrder()) is in use
             //frame.dataProvider.finishOrder(currentlySelectedOrder()); //to be de-commented
 
             frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
-            selectRow(ordersTable, upperRow(ordersTable, currentlySelectedRow));
+            if(!isAnyRow(ordersTable)){productsTableModel.setRowCount(0);}
+            selectRow(ordersTable, nextValidRow(ordersTable, currentlySelectedRow));
         }
     }
 
@@ -309,7 +306,7 @@ public class OrdersPanel extends BasePanel {
 
         if (isLastProduct(product)) {
             removeProduct(product);
-            currentlySelectedRow = upperRow(productsTable, currentlySelectedRow);
+            currentlySelectedRow = nextValidRow(productsTable, currentlySelectedRow);
         } else {
             product.setQuantity(product.getQuantity() - 1);
         }
@@ -318,6 +315,18 @@ public class OrdersPanel extends BasePanel {
         selectRow(productsTable, currentlySelectedRow);
     }
 
+    public boolean isValidPlusMinus() {
+        //if (ordersTable.getSelectedRow() < 0) {
+        if (isNoSelectedRow(ordersTable)) {
+            showError(plusMinusOrderErrorMessage);
+            return false;
+            //} else if (productsTable.getSelectedRow() < 0) {
+        } else if (isNoSelectedRow(productsTable)) {
+            showError(plusMinusProductErrorMessage);
+            return false;
+        }
+        return true;
+    }
 
     public void removeProduct(Product product) {
         currentlySelectedOrder().getOrderProducts().remove(productsTable.getSelectedRow());
@@ -327,18 +336,30 @@ public class OrdersPanel extends BasePanel {
         return (product.getQuantity() == 1);
     }
 
+    /* begin of some selection checks - probably will be moved in SelectionHelper class */
     public boolean isAnyRow(JTable table) {
         return table.getRowCount() != 0;
+    }
+
+    public boolean isOneRow(JTable table) {
+        return table.getRowCount() == 1;
+    }
+
+    public boolean isFirstRowSelected(JTable table) {
+        System.out.println("isFirstSelectedROw" + table.getSelectedRow());
+        return (table.getSelectedRow() == 0);
     }
 
     public boolean isNoSelectedRow(JTable table) {
         return (table.getSelectedRow() < 0);
     }
 
-    public int upperRow(JTable table, int currentlySelectedRow) {
-        if (isAnyRow(table) && !isOneRow(table)) {
-            currentlySelectedRow -= 1;
-        }
+    public int nextValidRow(JTable table, int currentlySelectedRow) {
+            if (isOneRow(table) || (currentlySelectedRow == 0)) {
+                return 0;
+            } else {
+                currentlySelectedRow -= 1;
+            }
         return currentlySelectedRow;
     }
 
@@ -346,6 +367,21 @@ public class OrdersPanel extends BasePanel {
         if (isAnyRow(table)) {
             table.setRowSelectionInterval(currentlySelectedRow, currentlySelectedRow);
         }
+    }
+
+    public void selectLastCreatedRow(JTable table) {
+        int currentlyCreatedTableRow = 0;
+        if (table.getRowCount() != 0) currentlyCreatedTableRow = table.getRowCount() - 1;
+        table.setRowSelectionInterval(currentlyCreatedTableRow, currentlyCreatedTableRow);
+    }
+
+    /* end of selection checks */
+
+    public void fetchTablesAndSelectOrder(Order order) {
+        int currentlySelectedOrderRow = ordersTable.getSelectedRow();
+        frame.dataProvider.fetchProducts(productsTableModel, order);
+        frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
+        ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
     }
 
     /* makes discount for an order within min and max; Discount is not applied to productType CIGARETTES */
@@ -366,6 +402,10 @@ public class OrdersPanel extends BasePanel {
         ordersTable.setRowSelectionInterval(currentlySelectedRow, currentlySelectedRow);
     }
 
+    public int askDiscount() {
+        return Integer.parseInt(JOptionPane.showInputDialog(discountMessage));
+    }
+
     public boolean isOrderDiscounted() {
         return (currentlySelectedOrder().getPercentDiscount() > 0);  //if there is a discount
     }
@@ -374,18 +414,9 @@ public class OrdersPanel extends BasePanel {
         return discount <= currentlySelectedOrder().getMaxDiscount() && discount >= currentlySelectedOrder().getMinDiscount();
     }
 
-    public int askDiscount() {
-        return Integer.parseInt(JOptionPane.showInputDialog(discountMessage));
-    }
-
-    public boolean isOneRow(JTable table) {
-        return table.getRowCount() == 1;
-    }
-
     public Product currentlySelectedProduct() {
         return currentlySelectedOrder().getOrderProducts().get(productsTable.getSelectedRow());
     }
-
 
     public Order currentlySelectedOrder() {
         int currentlySelectedOrderRow = ordersTable.getSelectedRow();
@@ -399,49 +430,12 @@ public class OrdersPanel extends BasePanel {
         return Integer.parseInt((String) ordersTable.getModel().getValueAt(currentlySelectedOrderRow, 0)) - 1;
     }
 
-    public void selectFirstRowOrderTable() {
-        if (frame.dataProvider.orders.size() > 0) {
-            for (Order order : frame.dataProvider.orders) {
-                if (order.getTableNumber() == selectedTableNumber) {
-                    ordersTable.setRowSelectionInterval(0, 0);
-                    initializeCategoryButtons();
-                    break;
-                }
-            }
-        }
-    }
-
-    public void selectLastCreatedRow(JTable table) {
-        int currentlyCreatedTableRow = 0;
-        if (table.getRowCount() != 0) currentlyCreatedTableRow = table.getRowCount() - 1;
-        table.setRowSelectionInterval(currentlyCreatedTableRow, currentlyCreatedTableRow);
-    }
-
-    public void fetchTablesAndSelectOrder(Order order) {
-        int currentlySelectedOrderRow = ordersTable.getSelectedRow();
-        frame.dataProvider.fetchProducts(productsTableModel, order);
-        frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
-        ordersTable.setRowSelectionInterval(currentlySelectedOrderRow, currentlySelectedOrderRow);
-    }
 
     public void showProductsForOrder() {
         if (ordersTable.getSelectedRow() > -1) {
             frame.dataProvider.fetchProducts(productsTableModel,
                     currentlySelectedOrder());
         }
-    }
-
-    public boolean isValidPlusMinus() {
-        //if (ordersTable.getSelectedRow() < 0) {
-        if (isNoSelectedRow(ordersTable)) {
-            showError(plusMinusOrderErrorMessage);
-            return false;
-            //} else if (productsTable.getSelectedRow() < 0) {
-        } else if (isNoSelectedRow(productsTable)) {
-            showError(plusMinusProductErrorMessage);
-            return false;
-        }
-        return true;
     }
 
     public void tableCellRenderer(JTable table) {
@@ -489,7 +483,10 @@ public class OrdersPanel extends BasePanel {
         finishButton.setText("Settle");
         discountButton.setText("Discount");
         tablesButton.setText("Tables");
-        try {backButton.setText("Back");} catch (Exception ignored) {}
+        try {
+            backButton.setText("Back");
+        } catch (Exception ignored) {
+        }
         createOrderMessage = "New order?";
         finishOrderMessage = "Settle the order?";
         createOrderSelectErrorMessage = "Please select order";

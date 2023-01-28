@@ -4,7 +4,6 @@ import models.Language;
 
 import javax.swing.*;
 
-
 public class BarFrame extends JFrame {
 
 
@@ -13,7 +12,7 @@ public class BarFrame extends JFrame {
     public BarLanguages currentLanguage;
     public BarDataProvider dataProvider;
     public BarFrame(){
-        super("Bar Zanzibar");
+        super("Bar ZanzibarS");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
         setSize(1000, 700);

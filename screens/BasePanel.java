@@ -14,9 +14,9 @@ public class BasePanel extends JPanel {
     public Language language;
     public static int elementWidth;
     public static int elementHeight;
-    public static int selectedTableNumber; //the tables start from 10, and the real number is the label Number - 11
+    public static int selectedTableNumber; //the table labels start from 11, table[i] in table[selectedTableNumber-11]
 
-    public BasePanel(BarFrame frame) {
+    public BasePanel(BarFrame frame){
         this.frame = frame;
         this.language = frame.language;
 
@@ -31,6 +31,12 @@ public class BasePanel extends JPanel {
         if (language == Language.BULGARIAN) {
             baseBulgarianLanguage();
         } else baseEnglishLanguage();
+    }
+
+    public void languageSwitch(Language language){
+        if (language == Language.BULGARIAN) {
+            bulgarianLanguage();
+        } else englishLanguage();
     }
 
     public void initializeBaseButtons() {
@@ -90,5 +96,15 @@ public class BasePanel extends JPanel {
         int result = JOptionPane.showConfirmDialog(null, message, "Attention",
                 JOptionPane.YES_NO_OPTION);
         return result == JOptionPane.YES_OPTION;
+    }
+
+
+    public void englishLanguage() {
+
+    }
+
+
+    public void bulgarianLanguage() {
+
     }
 }

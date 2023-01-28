@@ -30,18 +30,11 @@ public class UsersPanel extends BasePanel implements MouseListener {
     String uniquePinErrorMessage;
     public UsersPanel(BarFrame frame) {
         super(frame);
-
-
         initializeUsersTable();
         initializeFieldsAndLabels();
         initializeButtons();
         initializeSearchField();
-
-        if (language == Language.BULGARIAN) {
-            bulgarianLanguage();
-        } else englishLanguage();
-
-
+        languageSwitch(language);
     }
     public void initializeUsersTable(){
         String[] columns = {"Име", "ПИН", "Телефон", "Тип"};

@@ -42,15 +42,11 @@ public class OrdersPanel extends BasePanel {
 
     public OrdersPanel(BarFrame frame) {
         super(frame);
-
         initializeHeader();
         initializeOrdersTable();
         initializeProductsTable();
         initializeFooter();
-
-        if (language == Language.BULGARIAN) {
-            bulgarianLanguage();
-        } else englishLanguage();
+        super.languageSwitch(language);
 
         frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
         selectFirstRowOrderTable();
@@ -251,7 +247,7 @@ public class OrdersPanel extends BasePanel {
         }
     }
 
-    public void finishOrderAction() { //moves the order to table 0, because the lack of autonumber for order no.
+    public void finishOrderAction() { //moves the order to table 0, because of the lack of autonumber for order no.
         boolean isYes = showQuestion(finishOrderMessage);
         if (isYes) {
             int currentlySelectedRow = ordersTable.getSelectedRow();

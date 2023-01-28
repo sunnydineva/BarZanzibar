@@ -1,7 +1,6 @@
 package screens;
 
 import frames.BarFrame;
-import frames.BarLanguages;
 import models.Language;
 import models.UserType;
 
@@ -22,40 +21,7 @@ public class LoginPanel extends BasePanel implements KeyListener, MouseListener 
         this.language = frame.language;
         cancelButton.setVisible(false);
         initializeElements();
-
-        if (language == Language.BULGARIAN) {
-            bulgarianLanguage();
-        } else englishLanguage();
-
-
-        /*
-        this.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                if (e.getKeyCode()==KeyEvent.VK_ENTER){
-                    System.out.println("Hello");
-                    loginAction();
-                } else if(e.getKeyCode()== KeyEvent.VK_LEFT)
-                    System.out.println("left");
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode()== KeyEvent.VK_ENTER){
-                    System.out.println("Hello");
-                    loginAction();
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                System.out.println(e.getKeyCode());
-            }
-        });
-
-         */
-
-
+        super.languageSwitch(language);
     }
 
     public void initializeElements() {
@@ -97,6 +63,7 @@ public class LoginPanel extends BasePanel implements KeyListener, MouseListener 
         }
     }
 
+
     public void englishLanguage() {
         loginErrorMsg = "Wrong password! Please enter your password again!";
         welcomeLabel.setText("Bar Zanzibar login");
@@ -113,7 +80,7 @@ public class LoginPanel extends BasePanel implements KeyListener, MouseListener 
         loginButton.setText("ВХОД");
     }
 
-    @Override
+
     public String toString() {
         return "LoginPanel";
     }

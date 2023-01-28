@@ -11,12 +11,8 @@ public class ManagerPanel extends BasePanel {
 
     public ManagerPanel(BarFrame frame){
         super(frame);
-
         initializeButtons();
-
-        if (language == Language.BULGARIAN) {
-            bulgarianLanguage();
-        } else englishLanguage();
+        languageSwitch(language);
     }
 
     public void initializeButtons() {
@@ -33,11 +29,13 @@ public class ManagerPanel extends BasePanel {
         add(userButton);
     }
 
+    @Override
     public void bulgarianLanguage(){
         tableButton.setText("Маси");
         userButton.setText("Персонал");
     }
 
+    @Override
     public void englishLanguage(){
         tableButton.setText("Tables");
         userButton.setText("Staff");

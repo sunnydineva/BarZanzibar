@@ -1,6 +1,7 @@
 package screens;
 
 import frames.BarFrame;
+import jdk.swing.interop.SwingInterOpUtils;
 import models.Language;
 import models.UserType;
 
@@ -28,6 +29,7 @@ public class UsersPanel extends BasePanel implements MouseListener {
     public DefaultTableModel usersTableModel;
     public JTable usersTable;
     String uniquePinErrorMessage;
+
     public UsersPanel(BarFrame frame) {
         super(frame);
         initializeUsersTable();
@@ -36,7 +38,8 @@ public class UsersPanel extends BasePanel implements MouseListener {
         initializeSearchField();
         languageSwitch(language);
     }
-    public void initializeUsersTable(){
+
+    public void initializeUsersTable() {
         String[] columns = {"Име", "ПИН", "Телефон", "Тип"};
         usersTableModel = new DefaultTableModel();
         usersTableModel.setColumnIdentifiers(columns);
@@ -47,17 +50,17 @@ public class UsersPanel extends BasePanel implements MouseListener {
         usersTablePane.setBounds(0, 0, frame.getWidth(), 200);
         add(usersTablePane);
 
-        frame.dataProvider.fetchUsers(usersTableModel); //при отварянето да запълни таблицата
+        frame.dataProvider.fetchUsers(usersTableModel);
     }
 
 
     public void initializeFieldsAndLabels() {
         nameLabel = new JLabel("Име");
-        nameLabel.setBounds(0, 230, elementWidth/2, 40);
+        nameLabel.setBounds(0, 230, elementWidth / 2, 40);
         add(nameLabel);
 
         nameField = new JTextField("Име");
-        nameField.setBounds(nameLabel.getX() + nameLabel.getWidth(), 230, elementWidth/2, 40);
+        nameField.setBounds(nameLabel.getX() + nameLabel.getWidth(), 230, elementWidth / 2, 40);
         nameField.addMouseListener(this);
         add(nameField);
 
@@ -93,20 +96,14 @@ public class UsersPanel extends BasePanel implements MouseListener {
     }
 
     public void initializeSearchField() {
-
-
-        frame.dataProvider.isSearchingUsers = false; // тук ли е проблемът с нефечванего на юзърите?
-
-
-
-
         searchField = new JTextField("Търсено име");
+        frame.dataProvider.isSearchingUsers = false;
         searchField.addMouseListener(this);
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                //викам метода за търсене:
-                frame.dataProvider.isSearchingUsers = true;
+                frame.dataProvider.isSearchingUsers = (!searchField.getText().equalsIgnoreCase("Търсено име"))
+                        && (!searchField.getText().equalsIgnoreCase("Searched name"));
                 frame.dataProvider.searchUsers(searchField.getText());
                 frame.dataProvider.fetchUsers(usersTableModel);
             }
@@ -129,28 +126,24 @@ public class UsersPanel extends BasePanel implements MouseListener {
         add(searchField);
     }
 
-    public void bulgarianLanguage(){
-///* разваля ми fetchUsers
+    public void bulgarianLanguage() {
         nameField.setText("Име");
         phoneField.setText("Телефон");
         pinField.setText("ПИН");
-        searchField.setText("Търсено име"); // ЕТО ГО МИЗЕРНИКЪТ
- //*/
+        searchField.setText("Търсено име");
         String[] columns = {"Име", "ПИН", "Телефон", "Тип"};
         usersTableModel.setColumnIdentifiers(columns);
         addButton.setText("Добави");
         deleteButton.setText("Изтрий");
         uniquePinErrorMessage = "Невалиден ПИН номер! Изберете нов";
-
         repaint();
     }
-    public void englishLanguage(){
-/*
+
+    public void englishLanguage() {
         nameField.setText("Name");
         phoneField.setText("Phone");
         pinField.setText("PIN");
         searchField.setText("Searched name");
- */
         addButton.setText("Add");
         deleteButton.setText("Remove");
         String[] columns = {"Name", "PIN", "Phone", "Level"};

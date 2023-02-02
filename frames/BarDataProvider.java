@@ -1,6 +1,7 @@
 package frames;
 
 import models.*;
+import screens.DisplayUser;
 import screens.UsersPanel;
 import screens.BasePanel;
 
@@ -104,7 +105,6 @@ public class BarDataProvider {
             row[2] = user.getPhoneNumber();
             row[3] = user.getUserRole(); //userType as String
             model.addRow(row);
-
         }
     }
 
@@ -166,7 +166,6 @@ public class BarDataProvider {
                 }
             }
         }
-
         tables.get(selectedTableNumber).setOccupied(false);
     }
 
@@ -213,12 +212,12 @@ public class BarDataProvider {
         return product1;
     }
 
-    public void adduserAction(UsersPanel adminPanel, DefaultTableModel usersTableModel, String uniquePinErrorMessage) {
-        UserType userType = adminPanel.typeComboBox.getSelectedIndex() == 0 ? UserType.MANAGER :
+    public void adduserAction(DisplayUser panel, DefaultTableModel usersTableModel, String uniquePinErrorMessage) {
+        UserType userType = panel.typeComboBox.getSelectedIndex() == 0 ? UserType.MANAGER :
                 UserType.WAITRESS; //0-MANAGER, 1-WAITRESS
 
-        User newUser = new User(adminPanel.getNameField().getText(), adminPanel.getPinField().getText(),
-                adminPanel.getPhoneField().getText(), userType);
+        User newUser = new User(panel.getNameField().getText(), panel.getPinField().getText(),
+                panel.getPhoneField().getText(), userType);
 
         if (isUniquePIN(newUser.getPinCode()) && isCorrectPinPattern(newUser)) {
             users.add(newUser);

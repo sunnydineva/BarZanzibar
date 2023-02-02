@@ -12,6 +12,7 @@ public class BasePanel extends JPanel {
     public JButton bulgarianButton;
     public JButton englishButton;
     public Language language;
+    public int tableBorder = 4;
     public static int elementWidth;
     public static int elementHeight;
     public static int selectedTableNumber; //the table labels start from 11, table[i] in table[selectedTableNumber-11]

@@ -27,21 +27,33 @@ public class UsersPanel extends BasePanel implements MouseListener {
 //    private JLabel typeLabel;
 //    private JLabel newUserLabel;
 //    private JButton addButton;
+
+    private JLabel userPanelLabel;
     private JButton deleteButton;
     private JButton editButton;
     private JButton showPinButton;
     public JComboBox<String> typeComboBox;
     public DefaultTableModel usersTableModel;
     public JTable usersTable;
+
     String uniquePinErrorMessage;
 
     public UsersPanel(BarFrame frame) {
         super(frame);
+        initializeHeader();
         initializeUsersTable();
         initializeUserArea();
         initializeButtons();
         initializeSearchArea();
         languageSwitch(language);
+    }
+
+    public void initializeHeader(){
+        userPanelLabel = new JLabel("Управление на потребителите");
+        userPanelLabel.setBounds(0, 40, frame.getWidth(), 40);
+        userPanelLabel.setFont(new Font("Helvetica", Font.BOLD, 25));
+        userPanelLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(userPanelLabel);
     }
 
     public void initializeUsersTable() {
@@ -199,6 +211,7 @@ public class UsersPanel extends BasePanel implements MouseListener {
         deleteButton.setText("Изтрий");
         editButton.setText("Редактирай");
         showPinButton.setText("Покажи ПИН");
+        userPanelLabel.setText("Управление на потребителите");
 
         repaint();
     }
@@ -222,6 +235,7 @@ public class UsersPanel extends BasePanel implements MouseListener {
         showPinButton.setText("Show PIN");
         String[] columns = {"Name", "PIN", "Phone", "Level"};
         usersTableModel.setColumnIdentifiers(columns);
+        userPanelLabel.setText("Users management");
 
         repaint();
     }

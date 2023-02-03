@@ -13,6 +13,7 @@ public class BarFrame extends JFrame {
     public BarDataProvider dataProvider;
     public BarFrame(){
         super("Bar ZanzibarS");
+
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
         setSize(1000, 700);

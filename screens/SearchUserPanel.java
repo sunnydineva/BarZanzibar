@@ -3,7 +3,6 @@ package screens;
 import frames.BarFrame;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
@@ -12,13 +11,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 
-public class SearchUser extends BasePanel implements MouseListener {
+public class SearchUserPanel extends BasePanel implements MouseListener {
     private JTextField searchField;
     private JLabel searchLabel;
     private DefaultTableModel usersTableModel;
 
 
-    public SearchUser(BarFrame frame, DefaultTableModel usersTableModel) {
+    public SearchUserPanel(BarFrame frame, DefaultTableModel usersTableModel) {
         super(frame);
         this.language = frame.language;
         cancelButton.setVisible(false);
@@ -48,7 +47,7 @@ public class SearchUser extends BasePanel implements MouseListener {
                 frame.dataProvider.isSearchingUsers = (!searchField.getText().equalsIgnoreCase("Търсено име"))
                         && (!searchField.getText().equalsIgnoreCase("Searched name"));
                 frame.dataProvider.searchUsers(searchField.getText());
-                frame.dataProvider.fetchUsers(usersTableModel);
+                frame.dataProvider.fetchUsers(usersTableModel, false);
             }
 
             @Override
@@ -57,7 +56,7 @@ public class SearchUser extends BasePanel implements MouseListener {
                     frame.dataProvider.isSearchingUsers = false;
                 }
                 frame.dataProvider.searchUsers(searchField.getText());
-                frame.dataProvider.fetchUsers(usersTableModel);
+                frame.dataProvider.fetchUsers(usersTableModel, false);
             }
 
             @Override

@@ -1,7 +1,7 @@
 package frames;
 
 import models.*;
-import screens.DisplayUser;
+import screens.DisplayUserPanel;
 import screens.UsersPanel;
 import screens.BasePanel;
 
@@ -17,7 +17,6 @@ public class BarDataProvider {
     public ArrayList<User> users;
     public ArrayList<User> searchedUsers;
     public ArrayList<Order> orders;
-    //public ArrayList<Integer> tables;
     public List<Table> tables;
     public static int tableNumberCorrective;
     public List<Product> products;
@@ -26,6 +25,7 @@ public class BarDataProvider {
     public ArrayList<String> productBrands; //for JButtons
     public User loggedUser;
     public boolean isSearchingUsers;
+    public String uniquePinErrorMessage;
 
     public BarDataProvider() {
 
@@ -84,13 +84,13 @@ public class BarDataProvider {
         return isUniquePIN;
     }
 
-    public boolean isCorrectPinPattern(User newUser){
+    public boolean isCorrectPinPattern(String newPin) {
         Pattern pattern = Pattern.compile("\\d{4}");
-        Matcher matcher = pattern.matcher(newUser.getPinCode());
+        Matcher matcher = pattern.matcher(newPin);
         return matcher.matches();
     }
 
-    public void fetchUsers(DefaultTableModel model) {
+    public void fetchUsers(DefaultTableModel model, Boolean isPinShown) {
         model.setRowCount(0);
         ArrayList<User> activeUserList;
         if (isSearchingUsers) {
@@ -101,9 +101,13 @@ public class BarDataProvider {
         for (User user : activeUserList) {
             String[] row = new String[4];
             row[0] = user.getName();
-            row[1] = user.getPinCode();
+            if (isPinShown) {
+                row[1] = user.getPinCode();
+            } else {
+                row[1] = "****";
+            }
             row[2] = user.getPhoneNumber();
-            row[3] = user.getUserRole(); //userType as String
+            row[3] = user.getType().label;
             model.addRow(row);
         }
     }
@@ -154,11 +158,11 @@ public class BarDataProvider {
         fetchOrders(ordersTableModel, selectedTableNumber);
     }
 
-    public void finishOrder(Order order){ //under construction - waits for autoNumber from server
+    public void finishOrder(Order order) { //under construction - waits for autoNumber from server
         int selectedTableNumber = 0;
 
         if (orders.size() > 0) {
-            for (Order ord: orders) {
+            for (Order ord : orders) {
                 if (ord.getUid().equals(order.getUid())) {
                     selectedTableNumber = order.getTableNumber();
                     orders.remove(ord);
@@ -169,17 +173,17 @@ public class BarDataProvider {
         tables.get(selectedTableNumber).setOccupied(false);
     }
 
-    public boolean isLastOrderForTable(int tableNumber){ // по-добре да проверявам наличните редове в таблицата с ордъри
+    public boolean isLastOrderForTable(int tableNumber) { // по-добре да проверявам наличните редове в таблицата с ордъри
         int counterOrdersForTable = 0;
-        for(Order order : orders){
-            if(order.getTableNumber() == (tableNumber)){
-                counterOrdersForTable ++;
-                if(counterOrdersForTable == 2){
+        for (Order order : orders) {
+            if (order.getTableNumber() == (tableNumber)) {
+                counterOrdersForTable++;
+                if (counterOrdersForTable == 2) {
                     break;
                 }
             }
         }
-        return  (counterOrdersForTable == 1);
+        return (counterOrdersForTable == 1);
     }
 
     public void vacatingTable(int selectedTableNumber) {
@@ -188,19 +192,19 @@ public class BarDataProvider {
         }
     }
 
-    public boolean isFinishedPreviousOrder(int selectedTableNumber){
+    public boolean isFinishedPreviousOrder(int selectedTableNumber) {
         if (orders.size() > 0) {
             for (Order order : orders) {
                 if (order.getTableNumber() == selectedTableNumber
                         && (order.getTotalPriceDouble(false)) == 0) {
-                 return false;
+                    return false;
                 }
             }
         }
         return true;
     }
 
-    public Product newProduct(String productBrand){
+    public Product newProduct(String productBrand) {
         Product product1 = null;
         for (Product product : products) {
             if (product.getBrand().equals(productBrand)) {
@@ -211,23 +215,50 @@ public class BarDataProvider {
         }
         return product1;
     }
-
-    public void adduserAction(DisplayUser panel, DefaultTableModel usersTableModel, String uniquePinErrorMessage) {
-        UserType userType = panel.typeComboBox.getSelectedIndex() == 0 ? UserType.MANAGER :
-                UserType.WAITRESS; //0-MANAGER, 1-WAITRESS
-
+    public void adduserAction(DisplayUserPanel panel, DefaultTableModel usersTableModel, String uniquePinErrorMessage) {
+        UserType userType = userTypeFromComboBox(panel);
         User newUser = new User(panel.getNameField().getText(), panel.getPinField().getText(),
                 panel.getPhoneField().getText(), userType);
 
-        if (isUniquePIN(newUser.getPinCode()) && isCorrectPinPattern(newUser)) {
+        if (isUniquePIN(newUser.getPinCode()) && isCorrectPinPattern(newUser.getPinCode())) {
             users.add(newUser);
-            fetchUsers(usersTableModel);
+            fetchUsers(usersTableModel, isShownPin(usersTableModel));
         } else JOptionPane.showMessageDialog(null, uniquePinErrorMessage,
                 "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    public void deleteUserAction(BasePanel basePanel, UsersPanel adminPanel) {
-        if (adminPanel.usersTable.getSelectedRow() < 0) {  //ако нямаме селектиран ред
+    public boolean isShownPin(DefaultTableModel usersTableModel){
+        //try {return !(usersTable.getModel().getValueAt(0,1).equals("****"));
+        try {return !(usersTableModel.getValueAt(0,1).equals("****"));
+        } catch (Exception ignored){}
+        return false;
+    }
+
+    public void editUserAction(DisplayUserPanel displayUserPanel, UsersPanel usersPanel, String uniquePinErrorMessage) {
+        if (!isAnySelectedUser(usersPanel)) return;
+        User userToEdit = selectedUser(usersPanel.usersTable);
+        userToEdit.setName(displayUserPanel.getNameField().getText());
+        userToEdit.setPhoneNumber(displayUserPanel.getPhoneField().getText());
+        if(!displayUserPanel.getPinField().getText().equals(userToEdit.getPinCode())){
+            if (isUniquePIN(displayUserPanel.getPinField().getText())
+                    && isCorrectPinPattern(displayUserPanel.getPinField().getText())) {
+                userToEdit.setPinCode(displayUserPanel.getPinField().getText());
+
+
+                //VALIDATIONS TO BE ADDED
+
+
+            } else {
+                JOptionPane.showMessageDialog(null, usersPanel.uniquePinErrorMessage,
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        userToEdit.setType(userTypeFromComboBox(displayUserPanel));
+        fetchUsers(usersPanel.usersTableModel, isShownPin(usersPanel.usersTableModel));
+    }
+
+    public void deleteUserAction(BasePanel basePanel, UsersPanel usersPanel) {
+        if (usersPanel.usersTable.getSelectedRow() < 0) {
             basePanel.showError("Нямате избран потебител");
             return;
         }
@@ -235,9 +266,9 @@ public class BarDataProvider {
         if (isYes) {
             ArrayList<User> activeUserList;
             if (isSearchingUsers) activeUserList = searchedUsers;
-            else   activeUserList = users;
+            else activeUserList = users;
 
-            User selectedUser = activeUserList.get(adminPanel.usersTable.getSelectedRow());
+            User selectedUser = activeUserList.get(usersPanel.usersTable.getSelectedRow());
             if (selectedUser.getPhoneNumber().equals((loggedUser.getPhoneNumber()))) { // защото нямаме id
                 basePanel.showError("Не може да изтриете текущия потебител");
                 return;
@@ -249,7 +280,41 @@ public class BarDataProvider {
                 }
             }
             isSearchingUsers = false;
-            fetchUsers(adminPanel.usersTableModel);
+            fetchUsers(usersPanel.usersTableModel, isShownPin(usersPanel.usersTableModel));
+        }
+    }
+
+    public boolean isAnySelectedUser(UsersPanel usersPanel) {
+        if (usersPanel.usersTable.getSelectedRow() > -1) {
+            return true;
+        } else {
+            usersPanel.showError(usersPanel.noSelectedUserErrorMessage);
+            return false;
+        }
+    }
+    public User selectedUser(JTable usersTable){
+        return users.get(usersTable.getSelectedRow());
+    }
+
+    public UserType userTypeFromComboBox(DisplayUserPanel panel) {
+        return panel.typeComboBox.getSelectedIndex() == 0 ? UserType.MANAGER :
+                UserType.WAITRESS; //0-MANAGER, 1-WAITRESS
+    }
+
+    public int userTypeFromTable(JTable table) {
+        int currentlySelectedUserRow = table.getSelectedRow();
+        String currentlySelectedUserType =
+                ((String) table.getModel().getValueAt(currentlySelectedUserRow, 3));
+        UserType userType =UserType.MANAGER;
+        return currentlySelectedUserType.equals(userType.label) ? 0 : 1; //0-MANAGER, 1-WAITRESS
+    }
+
+    public void displayUserInUserArea(JTable table, DisplayUserPanel displayUserPanel){
+        if(!(table.getSelectedRow() == -1)) {
+            displayUserPanel.getNameField().setText((selectedUser(table).getName()));
+            displayUserPanel.getPinField().setText((selectedUser(table).getPinCode()));
+            displayUserPanel.getPhoneField().setText((selectedUser(table).getPhoneNumber()));
+            displayUserPanel.getTypeComboBox().setSelectedIndex(userTypeFromTable(table));
         }
     }
 

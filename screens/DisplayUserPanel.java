@@ -9,23 +9,31 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class DisplayUser extends BasePanel implements MouseListener {
+public class DisplayUserPanel extends BasePanel implements MouseListener {
     private JLabel nameLabel;
     private JLabel phoneLabel;
 
     private JLabel pinLabel;
     private JLabel typeLabel;
-    private JLabel newUserLabel;
+    private JLabel displayUserLabel;
     private JTextField nameField;
     private JTextField pinField;
     private JTextField phoneField;
     public JComboBox<String> typeComboBox;
     private UserType selectedType;
     DefaultTableModel usersTableModel;
-    String uniquePinErrorMessage;
+    //String uniquePinErrorMessage;
+    String nameText;
+    String phoneText;
+    String pinText;
+    String displayUserLabelText;
+    String addButtonText;
+    String clearButtonText;
+
 
     private JButton addButton;
-    public DisplayUser(BarFrame frame, DefaultTableModel usersTableModel) {
+    private JButton clearButton;
+    public DisplayUserPanel(BarFrame frame, DefaultTableModel usersTableModel) {
         super(frame);
         this.language = frame.language;
         cancelButton.setVisible(false);
@@ -36,63 +44,97 @@ public class DisplayUser extends BasePanel implements MouseListener {
         super.languageSwitch(language);
     }
     public void initializeElements(){
-        newUserLabel = new JLabel("Добавяне на нов потребител:");
-        newUserLabel.setBounds(0, 10, elementWidth-14, 40);
-        newUserLabel.setFont(new Font("Helvetica", Font.BOLD, 20));
-        newUserLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        add(newUserLabel);
+        displayUserLabel = new JLabel(displayUserLabelText);
+        displayUserLabel.setBounds(0, 10, elementWidth-14, 40);
+        displayUserLabel.setFont(new Font("Helvetica", Font.BOLD, 20));
+        displayUserLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(displayUserLabel);
 
-        nameField = new JTextField("Име");
-        nameField.setBounds(elementWidth/3-10, newUserLabel.getY()+50, elementWidth - elementWidth/3 -14 , 40);
+        nameField = new JTextField(nameText);
+        nameField.setBounds(elementWidth/3-10, displayUserLabel.getY()+50, elementWidth - elementWidth/3 -14 , 40);
         nameField.addMouseListener(this);
         add(nameField);
 
-        pinField = new JTextField("ПИН");
+        pinField = new JTextField(pinText);
         pinField.setBounds(nameField.getX(), nameField.getY() + 50, nameField.getWidth(), 40);
         pinField.addMouseListener(this);
         add(pinField);
 
-        phoneField = new JTextField("Телефон");
+        phoneField = new JTextField(phoneText);
         phoneField.setBounds(nameField.getX(), pinField.getY() + 50, nameField.getWidth(), 40);
         phoneField.addMouseListener(this);
         add(phoneField);
 
-        String[] options = {"Мениджър", "Сервитьор"};
+        String[] options = {"M-Мениджър", "W-Сервитьор","-"};
         typeComboBox = new JComboBox<>(options);
         typeComboBox.setBounds(nameField.getX(), phoneField.getY() + 50, nameField.getWidth(), 40);
         add(typeComboBox);
 
-        nameLabel = new JLabel("Име: ");
+        nameLabel = new JLabel(nameText +": ");
         nameLabel.setBounds(0, nameField.getY(), elementWidth/3-10, 40);
         nameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         add(nameLabel);
 
-        pinLabel = new JLabel("ПИН: ");
+        pinLabel = new JLabel(pinText +": ");
         pinLabel.setBounds(0, pinField.getY(), nameLabel.getWidth(), 40);
         pinLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         add(pinLabel);
 
-        phoneLabel = new JLabel("Телефон: ");
+        phoneLabel = new JLabel(phoneText +": ");
         phoneLabel.setBounds(0, phoneField.getY(), nameLabel.getWidth(), 40);
         phoneLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         add(phoneLabel);
 
-        typeLabel = new JLabel("Роля: ");
+        typeLabel = new JLabel(typeLabel +": ");
         typeLabel.setBounds(0, typeComboBox.getY(), nameLabel.getWidth(), 40);
         typeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         add(typeLabel);
 
-        addButton = new JButton("Добави");
+        clearButton = new JButton(clearButtonText);
         selectedType = null;
-        addButton.setBounds(5, typeComboBox.getY()+50, elementWidth -30, 40);
+        clearButton.setBounds(5, typeComboBox.getY()+50, elementWidth -30, 40);
+        clearButton.addActionListener(e ->{
+                    clearAction();
+                    System.out.println("clearUserFields activated");
+                });
+
+        add(clearButton);
+
+        addButton = new JButton(addButtonText);
+        selectedType = null;
+        addButton.setBounds(5, clearButton.getY()+50, elementWidth -30, 40);
         addButton.addActionListener(e ->
-                frame.dataProvider.adduserAction(this, usersTableModel, uniquePinErrorMessage));
+                frame.dataProvider.adduserAction(this, usersTableModel, frame.dataProvider.uniquePinErrorMessage));
         add(addButton);
+    }
+
+    public void clearAction(){
+        nameField.setText("");
+        pinField.setText("");
+        phoneField.setText("");
+        typeComboBox.setSelectedIndex(2);
+    }
+
+    public void resetAction(){
+        nameField.setText("");
+        pinField.setText("");
+        phoneField.setText("");
+        typeComboBox.setSelectedIndex(2);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
 
+        if (((JTextField) e.getSource()).getText().equals("Име") ||
+                ((JTextField) e.getSource()).getText().equals("Name") ||
+                ((JTextField) e.getSource()).getText().equals("ПИН") ||
+                ((JTextField) e.getSource()).getText().equals("PIN") ||
+                ((JTextField) e.getSource()).getText().equals("Телефон") ||
+                ((JTextField) e.getSource()).getText().equals("Phone") ||
+                ((JTextField) e.getSource()).getText().equals("Търсено име") ||
+                ((JTextField) e.getSource()).getText().equals("Searched nameText"))
+
+            ((JTextField) e.getSource()).setText("");
     }
 
     @Override
@@ -147,12 +189,12 @@ public class DisplayUser extends BasePanel implements MouseListener {
         this.typeLabel = typeLabel;
     }
 
-    public JLabel getNewUserLabel() {
-        return newUserLabel;
+    public JLabel getDisplayUserLabel() {
+        return displayUserLabel;
     }
 
-    public void setNewUserLabel(JLabel newUserLabel) {
-        this.newUserLabel = newUserLabel;
+    public void setDisplayUserLabel(JLabel displayUserLabel) {
+        this.displayUserLabel = displayUserLabel;
     }
 
     public JTextField getNameField() {
@@ -203,14 +245,6 @@ public class DisplayUser extends BasePanel implements MouseListener {
         this.usersTableModel = usersTableModel;
     }
 
-    public String getUniquePinErrorMessage() {
-        return uniquePinErrorMessage;
-    }
-
-    public void setUniquePinErrorMessage(String uniquePinErrorMessage) {
-        this.uniquePinErrorMessage = uniquePinErrorMessage;
-    }
-
     public JButton getAddButton() {
         return addButton;
     }
@@ -220,34 +254,52 @@ public class DisplayUser extends BasePanel implements MouseListener {
     }
 
     public void bulgarianLanguage() {
-        nameField.setText("Име");
-        phoneField.setText("Телефон");
-        pinField.setText("ПИН");
-        nameLabel.setText("Име: ");
-        phoneLabel.setText("Телефон: ");
-        pinLabel.setText("ПИН: ");
+        nameText = "Име";
+        phoneText = "Телефон";
+        pinText = "ПИН";
+        displayUserLabelText = "Добавяне на нов потребител:";
+        addButtonText = "Добави";
+        clearButtonText = "Изчисти";
+
+        nameField.setText(nameText);
+        phoneField.setText(phoneText);
+        pinField.setText(pinText);
+        nameLabel.setText(nameText +": ");
+        phoneLabel.setText(phoneText+": ");
+        pinLabel.setText(pinText +": ");
+
         typeLabel.setText("Роля: ");
-        newUserLabel.setText("Добавяне на нов потребител:");
-        String[] columns = {"Име", "ПИН", "Телефон", "Тип"};
+        displayUserLabel.setText(displayUserLabelText);
+        String[] columns = {nameText, pinText, phoneText, "Тип"};
         usersTableModel.setColumnIdentifiers(columns);
-        addButton.setText("Добави");
-        uniquePinErrorMessage = "Невалиден ПИН номер! Изберете нов";
+        addButton.setText(addButtonText);
+        clearButton.setText(clearButtonText);
+        frame.dataProvider.uniquePinErrorMessage = "Невалиден ПИН номер! Изберете нов";
         repaint();
     }
 
     public void englishLanguage() {
-        nameField.setText("Name");
-        phoneField.setText("Phone");
-        pinField.setText("PIN");
-        nameLabel.setText("Name: ");
-        phoneLabel.setText("Phone: ");
-        pinLabel.setText("PIN: ");
+        nameText = "Name";
+        phoneText = "Phone";
+        pinText = "PIN";
+        displayUserLabelText = "Add new user:";
+        addButtonText = "Add";
+        clearButtonText = "Clear";
+
+        nameField.setText(nameText);
+        phoneField.setText(phoneText);
+        pinField.setText(pinText);
+        nameLabel.setText(nameText +": ");
+        phoneLabel.setText(phoneText+": ");
+        pinLabel.setText(pinText +": ");
+
         typeLabel.setText("Role: ");
-        newUserLabel.setText("Add new user:");
-        addButton.setText("Add");
-        String[] columns = {"Name", "PIN", "Phone", "Level"};
+        displayUserLabel.setText(displayUserLabelText);
+        addButton.setText(addButtonText);
+        clearButton.setText(clearButtonText);
+        String[] columns = {nameText, pinText, phoneText, "Level"};
         usersTableModel.setColumnIdentifiers(columns);
-        uniquePinErrorMessage = "Invalid PIN number. Please choose another combination";
+        frame.dataProvider.uniquePinErrorMessage = "Invalid PIN number. Please choose another combination";
         repaint();
     }
 }

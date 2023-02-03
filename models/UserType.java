@@ -1,6 +1,15 @@
 package models;
 
 public enum UserType {
-        WAITRESS,
-        MANAGER
+        WAITRESS("W-Сервитьор",1),
+        MANAGER("M-Мениджър", 0);
+
+        public final int no;
+        public final String label;
+
+        UserType(String label, int no){
+                this.label = label;
+                this.no = no;
+        }
+
 }

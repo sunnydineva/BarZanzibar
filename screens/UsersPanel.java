@@ -53,7 +53,7 @@ public class UsersPanel extends BasePanel implements MouseListener {
         languageSwitch(language);
     }
 
-    public void initializeHeader(){
+    public void initializeHeader() {
         userPanelLabel = new JLabel(userPanelText);
         userPanelLabel.setBounds(0, 40, frame.getWidth(), 40);
         userPanelLabel.setFont(new Font("Helvetica", Font.BOLD, 25));
@@ -67,7 +67,7 @@ public class UsersPanel extends BasePanel implements MouseListener {
         usersTableModel.setColumnIdentifiers(columns);
         usersTable = new JTable(usersTableModel);
         JScrollPane usersTablePane = new JScrollPane(usersTable);
-        usersTable.getSelectionModel().addListSelectionListener(e-> {
+        usersTable.getSelectionModel().addListSelectionListener(e -> {
 
             displayUser.getDisplayUserLabel().setText(displayUser.displayUserLabelText);
 
@@ -75,51 +75,48 @@ public class UsersPanel extends BasePanel implements MouseListener {
             //при изчистване - да става добавяне
 
 
-
             frame.dataProvider.displayUserInUserArea(this.usersTable, displayUser);
         });
-        usersTablePane.setBounds(elementWidth, frame.getHeight()/3-20, elementWidth * 2 - 14, 230);
+        usersTablePane.setBounds(elementWidth, frame.getHeight() / 3 - 20, elementWidth * 2 - 14, 230);
         add(usersTablePane);
         frame.dataProvider.fetchUsers(usersTableModel, false);
     }
 
     public void initializeUserArea(int modes_1_edit_2_add) {
-            displayUser = new DisplayUserPanel(frame, usersTableModel);
-            displayUser.setBounds(5, frame.getHeight() / 3 - 105,
-                    elementWidth - 14, frame.getHeight() / 3 + 130);
-            add(displayUser);
-            this.frame.validate();
+        displayUser = new DisplayUserPanel(frame, usersTableModel);
+        displayUser.setBounds(5, frame.getHeight() / 3 - 105,
+                elementWidth - 14, frame.getHeight() / 3 + 130);
+        add(displayUser);
+        this.frame.validate();
     }
 
     public void initializeButtons() {
         showPinButton = new JButton(showPinButtonText);
-        showPinButton.setBounds(elementWidth, frame.getHeight()/3 + 220, elementWidth, 40);
+        showPinButton.setBounds(elementWidth, frame.getHeight() / 3 + 220, elementWidth, 40);
         showPinButton.addActionListener(e -> showPin());
         add(showPinButton);
 
         hidePinButton = new JButton(hidePinButtonText);
-        hidePinButton.setBounds(elementWidth, frame.getHeight()/3 + 220, elementWidth, 40);
+        hidePinButton.setBounds(elementWidth, frame.getHeight() / 3 + 220, elementWidth, 40);
         hidePinButton.addActionListener(e -> hidePin());
 
         editSaveButton = new JButton(editSaveButtonText);
-        editSaveButton.setBounds(elementWidth*2+10, showPinButton.getY(), elementWidth-25, 40);
-        editSaveButton.addActionListener(e -> {
-                        System.out.println("userEdit activated");
-                        frame.dataProvider.editUserAction(displayUser, this, uniquePinErrorMessage);
-        });
+        editSaveButton.setBounds(elementWidth * 2 + 10, showPinButton.getY(), elementWidth - 25, 40);
+        editSaveButton.addActionListener(e -> frame.dataProvider.editUserAction(displayUser,
+                this, frame.dataProvider.uniquePinErrorMessage));
         add(editSaveButton);
 
         deleteButton = new JButton(deleteButtonText);
-        deleteButton.setBounds(elementWidth*2+10, editSaveButton.getY() + 50,
-                elementWidth-25, 40);
+        deleteButton.setBounds(elementWidth * 2 + 10, editSaveButton.getY() + 50,
+                elementWidth - 25, 40);
         deleteButton.addActionListener(e -> frame.dataProvider.deleteUserAction(this, this));
         add(deleteButton);
     }
 
     public void initializeSearchArea() {
         JPanel searchPanel = new SearchUserPanel(frame, usersTableModel);
-        searchPanel.setBounds(elementWidth, frame.getHeight()/3-105,
-                elementWidth * 2 -14, frame.getHeight()/3/3);
+        searchPanel.setBounds(elementWidth, frame.getHeight() / 3 - 105,
+                elementWidth * 2 - 14, frame.getHeight() / 3 / 3);
         //this.frame.setContentPane(searchPanel);
         add(searchPanel);
         this.frame.validate();
@@ -138,8 +135,14 @@ public class UsersPanel extends BasePanel implements MouseListener {
         userPanelLabel.setText("Управление на потребителите");
         deleteButton.setText("Изтрий");
         editSaveButton.setText("Запази промените");
-        try {showPinButton.setText("Покажи ПИН");} catch (Exception ignored) {}
-        try {hidePinButton.setText("Скрий ПИН");} catch (Exception ignored) {}
+        try {
+            showPinButton.setText("Покажи ПИН");
+        } catch (Exception ignored) {
+        }
+        try {
+            hidePinButton.setText("Скрий ПИН");
+        } catch (Exception ignored) {
+        }
         noSelectedUserErrorMessage = "Моля селектирайте потребител";
 
         repaint();
@@ -157,13 +160,20 @@ public class UsersPanel extends BasePanel implements MouseListener {
         userPanelLabel.setText(userPanelText);
         deleteButton.setText(deleteButtonText);
         editSaveButton.setText(editSaveButtonText);
-        try {showPinButton.setText(showPinButtonText);} catch (Exception ignored) {}
-        try {hidePinButton.setText(hidePinButtonText);} catch (Exception ignored) {}
+        try {
+            showPinButton.setText(showPinButtonText);
+        } catch (Exception ignored) {
+        }
+        try {
+            hidePinButton.setText(hidePinButtonText);
+        } catch (Exception ignored) {
+        }
         noSelectedUserErrorMessage = "Please select user";
 
         repaint();
     }
-    public void showPin(){
+
+    public void showPin() {
         frame.dataProvider.fetchUsers(usersTableModel, true);
         remove(showPinButton);
         add(hidePinButton);
@@ -171,7 +181,7 @@ public class UsersPanel extends BasePanel implements MouseListener {
         repaint();
     }
 
-    public void hidePin(){
+    public void hidePin() {
         frame.dataProvider.fetchUsers(usersTableModel, false);
         remove(hidePinButton);
         add(showPinButton);

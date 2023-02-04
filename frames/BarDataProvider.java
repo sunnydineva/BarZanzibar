@@ -26,6 +26,12 @@ public class BarDataProvider {
     public User loggedUser;
     public boolean isSearchingUsers;
     public String uniquePinErrorMessage;
+    public String pinPatternErrorMessage;
+    public String selectUserTypeErrorMessage;
+    public String currentUserErrorMessage;
+    public String userNotSelectedErrorMessage;
+    public String deleteUserConfirmationMessage;
+
 
     public BarDataProvider() {
 
@@ -78,6 +84,7 @@ public class BarDataProvider {
         for (User user : users) {
             if (user.getPinCode().equals(newPin)) {
                 isUniquePIN = false;
+                showError(uniquePinErrorMessage);
                 break;
             }
         }
@@ -87,7 +94,11 @@ public class BarDataProvider {
     public boolean isCorrectPinPattern(String newPin) {
         Pattern pattern = Pattern.compile("\\d{4}");
         Matcher matcher = pattern.matcher(newPin);
-        return matcher.matches();
+        if (!matcher.matches()) {
+            showError(pinPatternErrorMessage);
+            return false;
+        }
+        return true;
     }
 
     public void fetchUsers(DefaultTableModel model, Boolean isPinShown) {
@@ -215,54 +226,45 @@ public class BarDataProvider {
         }
         return product1;
     }
-    public void adduserAction(DisplayUserPanel panel, DefaultTableModel usersTableModel, String uniquePinErrorMessage) {
-        UserType userType = userTypeFromComboBox(panel);
-        User newUser = new User(panel.getNameField().getText(), panel.getPinField().getText(),
-                panel.getPhoneField().getText(), userType);
 
-        if (isUniquePIN(newUser.getPinCode()) && isCorrectPinPattern(newUser.getPinCode())) {
-            users.add(newUser);
-            fetchUsers(usersTableModel, isShownPin(usersTableModel));
-        } else JOptionPane.showMessageDialog(null, uniquePinErrorMessage,
-                "Error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    public boolean isShownPin(DefaultTableModel usersTableModel){
-        //try {return !(usersTable.getModel().getValueAt(0,1).equals("****"));
-        try {return !(usersTableModel.getValueAt(0,1).equals("****"));
-        } catch (Exception ignored){}
-        return false;
+    public void adduserAction(DisplayUserPanel panel, DefaultTableModel usersTableModel) {
+        String newPin = panel.getPinField().getText();
+        if (isUniquePIN(newPin) && isCorrectPinPattern(newPin)){
+            UserType userType = userTypeFromComboBox(panel);
+            User newUser = new User(panel.getNameField().getText(), panel.getPinField().getText(),
+                    panel.getPhoneField().getText(), userType);
+            if (userType != null) {
+                users.add(newUser);
+                panel.resetAction();
+                fetchUsers(usersTableModel, isShownPin(usersTableModel));
+            }
+        }
     }
 
     public void editUserAction(DisplayUserPanel displayUserPanel, UsersPanel usersPanel, String uniquePinErrorMessage) {
         if (!isAnySelectedUser(usersPanel)) return;
         User userToEdit = selectedUser(usersPanel.usersTable);
-        userToEdit.setName(displayUserPanel.getNameField().getText());
-        userToEdit.setPhoneNumber(displayUserPanel.getPhoneField().getText());
-        if(!displayUserPanel.getPinField().getText().equals(userToEdit.getPinCode())){
+        if (!displayUserPanel.getPinField().getText().equals(userToEdit.getPinCode())) {
             if (isUniquePIN(displayUserPanel.getPinField().getText())
-                    && isCorrectPinPattern(displayUserPanel.getPinField().getText())) {
+                    && isCorrectPinPattern(displayUserPanel.getPinField().getText())
+                    && userTypeFromComboBox(displayUserPanel) != null) {
+                userToEdit.setName(displayUserPanel.getNameField().getText());
                 userToEdit.setPinCode(displayUserPanel.getPinField().getText());
-
-
-                //VALIDATIONS TO BE ADDED
-
-
-            } else {
-                JOptionPane.showMessageDialog(null, usersPanel.uniquePinErrorMessage,
-                        "Error", JOptionPane.ERROR_MESSAGE);
+                userToEdit.setPhoneNumber(displayUserPanel.getPhoneField().getText());
+                userToEdit.setType(userTypeFromComboBox(displayUserPanel));
+                //MORE VALIDATIONS TO BE ADDED
+                displayUserPanel.resetAction();
+                fetchUsers(usersPanel.usersTableModel, isShownPin(usersPanel.usersTableModel));
             }
         }
-        userToEdit.setType(userTypeFromComboBox(displayUserPanel));
-        fetchUsers(usersPanel.usersTableModel, isShownPin(usersPanel.usersTableModel));
     }
 
     public void deleteUserAction(BasePanel basePanel, UsersPanel usersPanel) {
         if (usersPanel.usersTable.getSelectedRow() < 0) {
-            basePanel.showError("Нямате избран потебител");
+            basePanel.showError(userNotSelectedErrorMessage);
             return;
         }
-        boolean isYes = basePanel.showQuestion("Сигуни ли сте, че искате да изтриете този потебител?");
+        boolean isYes = basePanel.showQuestion(deleteUserConfirmationMessage);
         if (isYes) {
             ArrayList<User> activeUserList;
             if (isSearchingUsers) activeUserList = searchedUsers;
@@ -270,7 +272,7 @@ public class BarDataProvider {
 
             User selectedUser = activeUserList.get(usersPanel.usersTable.getSelectedRow());
             if (selectedUser.getPhoneNumber().equals((loggedUser.getPhoneNumber()))) { // защото нямаме id
-                basePanel.showError("Не може да изтриете текущия потебител");
+                basePanel.showError(currentUserErrorMessage);
                 return;
             }
             for (int i = 0; i < users.size(); i++) {
@@ -292,30 +294,52 @@ public class BarDataProvider {
             return false;
         }
     }
-    public User selectedUser(JTable usersTable){
+
+    public User selectedUser(JTable usersTable) {
         return users.get(usersTable.getSelectedRow());
     }
 
     public UserType userTypeFromComboBox(DisplayUserPanel panel) {
-        return panel.typeComboBox.getSelectedIndex() == 0 ? UserType.MANAGER :
-                UserType.WAITRESS; //0-MANAGER, 1-WAITRESS
+        if (panel.typeComboBox.getSelectedIndex() == 0) {
+            panel.showError(selectUserTypeErrorMessage);
+        }
+        return switch (panel.typeComboBox.getSelectedIndex()) {
+            case 0 -> null;
+            case 1 -> UserType.WAITRESS;
+            case 2 -> UserType.MANAGER;
+            default -> null;
+        };
     }
 
     public int userTypeFromTable(JTable table) {
         int currentlySelectedUserRow = table.getSelectedRow();
         String currentlySelectedUserType =
                 ((String) table.getModel().getValueAt(currentlySelectedUserRow, 3));
-        UserType userType =UserType.MANAGER;
-        return currentlySelectedUserType.equals(userType.label) ? 0 : 1; //0-MANAGER, 1-WAITRESS
+        UserType userType = UserType.MANAGER;
+        return currentlySelectedUserType.equals(userType.label) ? 2 : 1; //2-MANAGER, 1-WAITRESS
     }
 
-    public void displayUserInUserArea(JTable table, DisplayUserPanel displayUserPanel){
-        if(!(table.getSelectedRow() == -1)) {
+    public void displayUserInUserArea(JTable table, DisplayUserPanel displayUserPanel) {
+        if (!(table.getSelectedRow() == -1)) {
+            displayUserPanel.getDisplayUserLabel().setText(displayUserPanel.editUserLabelText);
             displayUserPanel.getNameField().setText((selectedUser(table).getName()));
             displayUserPanel.getPinField().setText((selectedUser(table).getPinCode()));
             displayUserPanel.getPhoneField().setText((selectedUser(table).getPhoneNumber()));
             displayUserPanel.getTypeComboBox().setSelectedIndex(userTypeFromTable(table));
         }
+    }
+
+    public boolean isShownPin(DefaultTableModel usersTableModel) {
+        //try {return !(usersTable.getModel().getValueAt(0,1).equals("****"));
+        try {
+            return !(usersTableModel.getValueAt(0, 1).equals("****"));
+        } catch (Exception ignored) {
+        }
+        return false;
+    }
+
+    public void showError(String message) {
+        JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public List<Product> getProducts() {

@@ -47,7 +47,7 @@ public class SearchUserPanel extends BasePanel implements MouseListener {
                 frame.dataProvider.isSearchingUsers = (!searchField.getText().equalsIgnoreCase("Търсено име"))
                         && (!searchField.getText().equalsIgnoreCase("Searched name"));
                 frame.dataProvider.searchUsers(searchField.getText());
-                frame.dataProvider.fetchUsers(usersTableModel, false);
+                frame.dataProvider.fetchUsers(usersTableModel, frame.dataProvider.isShownPin(usersTableModel));
             }
 
             @Override
@@ -56,7 +56,7 @@ public class SearchUserPanel extends BasePanel implements MouseListener {
                     frame.dataProvider.isSearchingUsers = false;
                 }
                 frame.dataProvider.searchUsers(searchField.getText());
-                frame.dataProvider.fetchUsers(usersTableModel, false);
+                frame.dataProvider.fetchUsers(usersTableModel, frame.dataProvider.isShownPin(usersTableModel));
             }
 
             @Override

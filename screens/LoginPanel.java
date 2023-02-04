@@ -1,7 +1,6 @@
 package screens;
 
 import frames.BarFrame;
-import models.Language;
 import models.UserType;
 
 import javax.swing.*;

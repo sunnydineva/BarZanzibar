@@ -101,11 +101,16 @@ public class BasePanel extends JPanel {
 
 
     public void englishLanguage() {
-
+        frame.dataProvider.userNotSelectedErrorMessage = "Please select user";
+        frame.dataProvider.deleteUserConfirmationMessage = "Are you sure you want to delete this user?";
+        frame.dataProvider.currentUserErrorMessage = "You can not delete current user";
     }
 
 
     public void bulgarianLanguage() {
+        frame.dataProvider.userNotSelectedErrorMessage = "Моля изберете потребител";
+        frame.dataProvider.deleteUserConfirmationMessage = "Моля изберете потребител";
+        frame.dataProvider.currentUserErrorMessage = "Не може да изтриете текущия потебител";
 
     }
 }

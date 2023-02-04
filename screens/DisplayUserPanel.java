@@ -1,8 +1,6 @@
 package screens;
 
 import frames.BarFrame;
-import models.UserType;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -12,7 +10,6 @@ import java.awt.event.MouseListener;
 public class DisplayUserPanel extends BasePanel implements MouseListener {
     private JLabel nameLabel;
     private JLabel phoneLabel;
-
     private JLabel pinLabel;
     private JLabel typeLabel;
     private JLabel displayUserLabel;
@@ -20,17 +17,14 @@ public class DisplayUserPanel extends BasePanel implements MouseListener {
     private JTextField pinField;
     private JTextField phoneField;
     public JComboBox<String> typeComboBox;
-    private UserType selectedType;
     DefaultTableModel usersTableModel;
-    //String uniquePinErrorMessage;
     String nameText;
     String phoneText;
     String pinText;
     String displayUserLabelText;
+    public String editUserLabelText;
     String addButtonText;
     String clearButtonText;
-
-
     private JButton addButton;
     private JButton clearButton;
     public DisplayUserPanel(BarFrame frame, DefaultTableModel usersTableModel) {
@@ -65,7 +59,7 @@ public class DisplayUserPanel extends BasePanel implements MouseListener {
         phoneField.addMouseListener(this);
         add(phoneField);
 
-        String[] options = {"M-Мениджър", "W-Сервитьор","-"};
+        String[] options = {"-", "W-Сервитьор","M-Мениджър"};
         typeComboBox = new JComboBox<>(options);
         typeComboBox.setBounds(nameField.getX(), phoneField.getY() + 50, nameField.getWidth(), 40);
         add(typeComboBox);
@@ -91,20 +85,14 @@ public class DisplayUserPanel extends BasePanel implements MouseListener {
         add(typeLabel);
 
         clearButton = new JButton(clearButtonText);
-        selectedType = null;
         clearButton.setBounds(5, typeComboBox.getY()+50, elementWidth -30, 40);
-        clearButton.addActionListener(e ->{
-                    clearAction();
-                    System.out.println("clearUserFields activated");
-                });
-
+        clearButton.addActionListener(e ->clearAction());
         add(clearButton);
 
         addButton = new JButton(addButtonText);
-        selectedType = null;
         addButton.setBounds(5, clearButton.getY()+50, elementWidth -30, 40);
         addButton.addActionListener(e ->
-                frame.dataProvider.adduserAction(this, usersTableModel, frame.dataProvider.uniquePinErrorMessage));
+                frame.dataProvider.adduserAction(this, usersTableModel));
         add(addButton);
     }
 
@@ -112,19 +100,20 @@ public class DisplayUserPanel extends BasePanel implements MouseListener {
         nameField.setText("");
         pinField.setText("");
         phoneField.setText("");
-        typeComboBox.setSelectedIndex(2);
+        typeComboBox.setSelectedIndex(0);
+        displayUserLabel.setText(displayUserLabelText);
     }
 
     public void resetAction(){
         nameField.setText("");
         pinField.setText("");
         phoneField.setText("");
-        typeComboBox.setSelectedIndex(2);
+        typeComboBox.setSelectedIndex(0);
+        displayUserLabel.setText(displayUserLabelText);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
         if (((JTextField) e.getSource()).getText().equals("Име") ||
                 ((JTextField) e.getSource()).getText().equals("Name") ||
                 ((JTextField) e.getSource()).getText().equals("ПИН") ||
@@ -157,100 +146,24 @@ public class DisplayUserPanel extends BasePanel implements MouseListener {
 
     }
 
-    public JLabel getNameLabel() {
-        return nameLabel;
-    }
-
-    public void setNameLabel(JLabel nameLabel) {
-        this.nameLabel = nameLabel;
-    }
-
-    public JLabel getPhoneLabel() {
-        return phoneLabel;
-    }
-
-    public void setPhoneLabel(JLabel phoneLabel) {
-        this.phoneLabel = phoneLabel;
-    }
-
-    public JLabel getPinLabel() {
-        return pinLabel;
-    }
-
-    public void setPinLabel(JLabel pinLabel) {
-        this.pinLabel = pinLabel;
-    }
-
-    public JLabel getTypeLabel() {
-        return typeLabel;
-    }
-
-    public void setTypeLabel(JLabel typeLabel) {
-        this.typeLabel = typeLabel;
-    }
-
     public JLabel getDisplayUserLabel() {
         return displayUserLabel;
-    }
-
-    public void setDisplayUserLabel(JLabel displayUserLabel) {
-        this.displayUserLabel = displayUserLabel;
     }
 
     public JTextField getNameField() {
         return nameField;
     }
 
-    public void setNameField(JTextField nameField) {
-        this.nameField = nameField;
-    }
-
     public JTextField getPinField() {
         return pinField;
-    }
-
-    public void setPinField(JTextField pinField) {
-        this.pinField = pinField;
     }
 
     public JTextField getPhoneField() {
         return phoneField;
     }
 
-    public void setPhoneField(JTextField phoneField) {
-        this.phoneField = phoneField;
-    }
-
     public JComboBox<String> getTypeComboBox() {
         return typeComboBox;
-    }
-
-    public void setTypeComboBox(JComboBox<String> typeComboBox) {
-        this.typeComboBox = typeComboBox;
-    }
-
-    public UserType getSelectedType() {
-        return selectedType;
-    }
-
-    public void setSelectedType(UserType selectedType) {
-        this.selectedType = selectedType;
-    }
-
-    public DefaultTableModel getUsersTableModel() {
-        return usersTableModel;
-    }
-
-    public void setUsersTableModel(DefaultTableModel usersTableModel) {
-        this.usersTableModel = usersTableModel;
-    }
-
-    public JButton getAddButton() {
-        return addButton;
-    }
-
-    public void setAddButton(JButton addButton) {
-        this.addButton = addButton;
     }
 
     public void bulgarianLanguage() {
@@ -258,6 +171,7 @@ public class DisplayUserPanel extends BasePanel implements MouseListener {
         phoneText = "Телефон";
         pinText = "ПИН";
         displayUserLabelText = "Добавяне на нов потребител:";
+        editUserLabelText = "Избран потребител:";
         addButtonText = "Добави";
         clearButtonText = "Изчисти";
 
@@ -275,6 +189,8 @@ public class DisplayUserPanel extends BasePanel implements MouseListener {
         addButton.setText(addButtonText);
         clearButton.setText(clearButtonText);
         frame.dataProvider.uniquePinErrorMessage = "Невалиден ПИН номер! Изберете нов";
+        frame.dataProvider.pinPatternErrorMessage = "Невалиден ПИН номер! Изберете ПИН от 4 цифри";
+        frame.dataProvider.selectUserTypeErrorMessage = "Моля изберете Тип потребител";
         repaint();
     }
 
@@ -283,6 +199,7 @@ public class DisplayUserPanel extends BasePanel implements MouseListener {
         phoneText = "Phone";
         pinText = "PIN";
         displayUserLabelText = "Add new user:";
+        editUserLabelText = "Избран потребител:";
         addButtonText = "Add";
         clearButtonText = "Clear";
 
@@ -300,6 +217,9 @@ public class DisplayUserPanel extends BasePanel implements MouseListener {
         String[] columns = {nameText, pinText, phoneText, "Level"};
         usersTableModel.setColumnIdentifiers(columns);
         frame.dataProvider.uniquePinErrorMessage = "Invalid PIN number. Please choose another combination";
+        frame.dataProvider.pinPatternErrorMessage = "Invalid PIN number. Choose 4 digit combination";
+        frame.dataProvider.selectUserTypeErrorMessage = "Please select User type";
+
         repaint();
     }
 }

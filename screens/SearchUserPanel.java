@@ -10,12 +10,10 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-
 public class SearchUserPanel extends BasePanel implements MouseListener {
     private JTextField searchField;
     private JLabel searchLabel;
     private DefaultTableModel usersTableModel;
-
 
     public SearchUserPanel(BarFrame frame, DefaultTableModel usersTableModel) {
         super(frame);
@@ -30,18 +28,16 @@ public class SearchUserPanel extends BasePanel implements MouseListener {
 
     public void initializeElements(){
         searchLabel = new JLabel("Търсене по име: ");
-        //nameLabel.setBounds(0, 230, elementWidth * 0.2, 40);
-        //searchLabel.setBounds(elementWidth / 2, 50, elementWidth / 2, 40);
         searchLabel.setBounds(5, 20, elementWidth-tableBorder, 40);
         searchLabel.setFont(new Font("Helvetica", Font.BOLD, 20));
         searchLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-       // this.setBorder(BorderFactory.createMatteBorder(tableBorder, tableBorder, tableBorder, tableBorder, Color.darkGray));
         add(searchLabel);
 
         searchField = new JTextField("Търсено име");
         frame.dataProvider.isSearchingUsers = false;
         searchField.addMouseListener(this);
         searchField.getDocument().addDocumentListener(new DocumentListener() {
+      //КОГАТО ТЪРСЯ НЕСЪЩЕСТВУВАЩ ПОТРЕБИТЕЛ МИ СЕ СБЪГВА ISSHOWNPIN
             @Override
             public void insertUpdate(DocumentEvent e) {
                 frame.dataProvider.isSearchingUsers = (!searchField.getText().equalsIgnoreCase("Търсено име"))
@@ -64,7 +60,6 @@ public class SearchUserPanel extends BasePanel implements MouseListener {
 
             }
         });
-        //searchField.setBounds(frame.getWidth() / 2 - elementWidth / 2, 230, elementWidth, 40);
         searchField.setBounds(frame.getWidth() / 2 - elementWidth / 2-tableBorder, 20, elementWidth-15, 40);
         add(searchField);
     }

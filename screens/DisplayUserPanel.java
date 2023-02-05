@@ -219,7 +219,6 @@ public class DisplayUserPanel extends BasePanel implements MouseListener {
         frame.dataProvider.uniquePinErrorMessage = "Invalid PIN number. Please choose another combination";
         frame.dataProvider.pinPatternErrorMessage = "Invalid PIN number. Choose 4 digit combination";
         frame.dataProvider.selectUserTypeErrorMessage = "Please select User type";
-
         repaint();
     }
 }

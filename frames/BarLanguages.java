@@ -1,17 +1,12 @@
 package frames;
 
 import models.Language;
-import screens.BasePanel;
-import screens.LoginPanel;
 
 public class BarLanguages {
-    public LoginPanel loginPanel;
-    public BasePanel basePanel;
     public BarFrame frame;
 
     public BarLanguages(BarFrame frame) {
         this.frame = frame;
-
         System.out.println("Frame is in " + frame.language);
     }
 
@@ -23,6 +18,5 @@ public class BarLanguages {
     public void bulgarianLanguageActon() {
         frame.language = Language.BULGARIAN;
         System.out.println("button " + frame.language);
-
     }
 }

@@ -1,8 +1,8 @@
 package frames;
 
-//navigation and group methods
 import screens.*;
 
+//navigation and group methods
 public class BarRouter {
     public BarFrame frame;
 
@@ -14,14 +14,12 @@ public class BarRouter {
         LoginPanel panel = new LoginPanel(frame);
         this.frame.setContentPane(panel); //the main panel of the frame
         this.frame.validate();
-
     }
 
     public void showUsersPanel() {
         UsersPanel panel = new UsersPanel(frame);
         this.frame.setContentPane(panel); //the main panel of the frame
         this.frame.validate();
-
     }
 
     public void showTables() {
@@ -29,7 +27,6 @@ public class BarRouter {
         this.frame.setContentPane(panel);
         this.frame.validate();
     }
-
 
     public void showManagerPanel(){
         ManagerPanel panel = new ManagerPanel(frame);

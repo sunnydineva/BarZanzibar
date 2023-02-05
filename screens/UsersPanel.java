@@ -1,8 +1,6 @@
 package screens;
 
 import frames.BarFrame;
-import models.UserType;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -10,33 +8,17 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class UsersPanel extends BasePanel implements MouseListener {
-
-    UserType selectedType;
-//    private JTextField nameField;
-//    private JTextField pinField;
-//    private JTextField phoneField;
-//    private JLabel nameLabel;
-//    private JLabel phoneLabel;
-//
-//    private JLabel pinLabel;
-//    private JLabel typeLabel;
-//    private JLabel newUserLabel;
-//    private JButton addButton;
-
     private JLabel userPanelLabel;
     private JButton deleteButton;
     private JButton editSaveButton;
     private JButton showPinButton;
     private JButton hidePinButton;
-    public JComboBox<String> typeComboBox;
     public DefaultTableModel usersTableModel;
     public JTable usersTable;
     private DisplayUserPanel displayUser;
 
     public String noSelectedUserErrorMessage = "Моля селектирайте потребител";
     boolean isShownPin = false;
-
-    public String uniquePinErrorMessage;
     String userPanelText;
     String deleteButtonText;
     String editSaveButtonText;
@@ -47,7 +29,7 @@ public class UsersPanel extends BasePanel implements MouseListener {
         super(frame);
         initializeHeader();
         initializeUsersTable();
-        initializeUserArea(1);
+        initializeUserArea();
         initializeButtons();
         initializeSearchArea();
         languageSwitch(language);
@@ -68,13 +50,7 @@ public class UsersPanel extends BasePanel implements MouseListener {
         usersTable = new JTable(usersTableModel);
         JScrollPane usersTablePane = new JScrollPane(usersTable);
         usersTable.getSelectionModel().addListSelectionListener(e -> {
-
             displayUser.getDisplayUserLabel().setText(displayUser.displayUserLabelText);
-
-            //да поиграя със заглавието от дисплейЮзъра - при селекция - да става Редактиране,
-            //при изчистване - да става добавяне
-
-
             frame.dataProvider.displayUserInUserArea(this.usersTable, displayUser);
         });
         usersTablePane.setBounds(elementWidth, frame.getHeight() / 3 - 20, elementWidth * 2 - 14, 230);
@@ -82,7 +58,7 @@ public class UsersPanel extends BasePanel implements MouseListener {
         frame.dataProvider.fetchUsers(usersTableModel, false);
     }
 
-    public void initializeUserArea(int modes_1_edit_2_add) {
+    public void initializeUserArea() {
         displayUser = new DisplayUserPanel(frame, usersTableModel);
         displayUser.setBounds(5, frame.getHeight() / 3 - 105,
                 elementWidth - 14, frame.getHeight() / 3 + 130);
@@ -102,8 +78,7 @@ public class UsersPanel extends BasePanel implements MouseListener {
 
         editSaveButton = new JButton(editSaveButtonText);
         editSaveButton.setBounds(elementWidth * 2 + 10, showPinButton.getY(), elementWidth - 25, 40);
-        editSaveButton.addActionListener(e -> frame.dataProvider.editUserAction(displayUser,
-                this, frame.dataProvider.uniquePinErrorMessage));
+        editSaveButton.addActionListener(e -> frame.dataProvider.editUserAction(displayUser, this));
         add(editSaveButton);
 
         deleteButton = new JButton(deleteButtonText);
@@ -117,13 +92,11 @@ public class UsersPanel extends BasePanel implements MouseListener {
         JPanel searchPanel = new SearchUserPanel(frame, usersTableModel);
         searchPanel.setBounds(elementWidth, frame.getHeight() / 3 - 105,
                 elementWidth * 2 - 14, frame.getHeight() / 3 / 3);
-        //this.frame.setContentPane(searchPanel);
         add(searchPanel);
         this.frame.validate();
     }
 
     public void bulgarianLanguage() {
-
         userPanelText = "Управление на потребителите";
         deleteButtonText = "Изтрий";
         editSaveButtonText = "Запази промените";
@@ -135,41 +108,9 @@ public class UsersPanel extends BasePanel implements MouseListener {
         userPanelLabel.setText("Управление на потребителите");
         deleteButton.setText("Изтрий");
         editSaveButton.setText("Запази промените");
-        try {
-            showPinButton.setText("Покажи ПИН");
-        } catch (Exception ignored) {
-        }
-        try {
-            hidePinButton.setText("Скрий ПИН");
-        } catch (Exception ignored) {
-        }
+        try {showPinButton.setText("Покажи ПИН");} catch (Exception ignored) {}
+        try {hidePinButton.setText("Скрий ПИН");} catch (Exception ignored) {}
         noSelectedUserErrorMessage = "Моля селектирайте потребител";
-
-        repaint();
-    }
-
-    public void englishLanguage() {
-        userPanelText = "Users management";
-        deleteButtonText = "Remove";
-        editSaveButtonText = "Save changes";
-        showPinButtonText = "Show PIN";
-        hidePinButtonText = "Hide PIN";
-
-        String[] columns = {"Name", "PIN", "Phone", "Level"};
-        usersTableModel.setColumnIdentifiers(columns);
-        userPanelLabel.setText(userPanelText);
-        deleteButton.setText(deleteButtonText);
-        editSaveButton.setText(editSaveButtonText);
-        try {
-            showPinButton.setText(showPinButtonText);
-        } catch (Exception ignored) {
-        }
-        try {
-            hidePinButton.setText(hidePinButtonText);
-        } catch (Exception ignored) {
-        }
-        noSelectedUserErrorMessage = "Please select user";
-
         repaint();
     }
 
@@ -189,28 +130,22 @@ public class UsersPanel extends BasePanel implements MouseListener {
         repaint();
     }
 
-    public JComboBox<String> getTypeComboBox() {
-        return typeComboBox;
-    }
+    public void englishLanguage() {
+        userPanelText = "Users management";
+        deleteButtonText = "Remove";
+        editSaveButtonText = "Save changes";
+        showPinButtonText = "Show PIN";
+        hidePinButtonText = "Hide PIN";
 
-    public void setTypeComboBox(JComboBox<String> typeComboBox) {
-        this.typeComboBox = typeComboBox;
-    }
-
-    public DefaultTableModel getUsersTableModel() {
-        return usersTableModel;
-    }
-
-    public void setUsersTableModel(DefaultTableModel usersTableModel) {
-        this.usersTableModel = usersTableModel;
-    }
-
-    public JTable getUsersTable() {
-        return usersTable;
-    }
-
-    public void setUsersTable(JTable usersTable) {
-        this.usersTable = usersTable;
+        String[] columns = {"Name", "PIN", "Phone", "Level"};
+        usersTableModel.setColumnIdentifiers(columns);
+        userPanelLabel.setText(userPanelText);
+        deleteButton.setText(deleteButtonText);
+        editSaveButton.setText(editSaveButtonText);
+        try {showPinButton.setText(showPinButtonText);} catch (Exception ignored) {}
+        try {hidePinButton.setText(hidePinButtonText);} catch (Exception ignored) {}
+        noSelectedUserErrorMessage = "Please select user";
+        repaint();
     }
 
     @Override

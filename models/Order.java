@@ -70,18 +70,6 @@ public class Order {
         return orderProducts;
     }
 
-    public void setOrderProducts(ArrayList<Product> orderProducts) {
-        this.orderProducts = orderProducts;
-    }
-
-    public User getWaitress() {
-        return waitress;
-    }
-
-    public void setWaitress(User waitress) {
-        this.waitress = waitress;
-    }
-
     public int getPercentDiscount() {
         return percentDiscount;
     }
@@ -90,16 +78,8 @@ public class Order {
         return maxDiscount;
     }
 
-    public void setMaxDiscount(int maxDiscount) {
-        this.maxDiscount = maxDiscount;
-    }
-
     public int getMinDiscount() {
         return minDiscount;
-    }
-
-    public void setMinDiscount(int minDiscount) {
-        this.minDiscount = minDiscount;
     }
 
     public void setPercentDiscount(int percentDiscount) {
@@ -110,7 +90,4 @@ public class Order {
         return uid;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
 }

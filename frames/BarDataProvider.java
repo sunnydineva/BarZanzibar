@@ -58,14 +58,6 @@ public class BarDataProvider {
         tables = Arrays.asList(table1, table2, table3, table4, table5, table6, table7, table8, table9, table10);
 
         tableNumberCorrective = 11; //for manipulating List<Table> tables / table numbers starts from 11
-
-        /* old version only with tableNumber w/o table status
-        tables = new ArrayList<>();
-        for (int i = 0; i <= 10; i++) {  // 10 маси
-            tables.add(i + 11);
-        }
-         */
-
         getProducts();
     }
 
@@ -241,21 +233,29 @@ public class BarDataProvider {
         }
     }
 
-    public void editUserAction(DisplayUserPanel displayUserPanel, UsersPanel usersPanel, String uniquePinErrorMessage) {
+    public void editUserAction(DisplayUserPanel displayUserPanel, UsersPanel usersPanel) {
         if (!isAnySelectedUser(usersPanel)) return;
         User userToEdit = selectedUser(usersPanel.usersTable);
+        boolean isValid = false;
+
         if (!displayUserPanel.getPinField().getText().equals(userToEdit.getPinCode())) {
             if (isUniquePIN(displayUserPanel.getPinField().getText())
-                    && isCorrectPinPattern(displayUserPanel.getPinField().getText())
-                    && userTypeFromComboBox(displayUserPanel) != null) {
-                userToEdit.setName(displayUserPanel.getNameField().getText());
-                userToEdit.setPinCode(displayUserPanel.getPinField().getText());
-                userToEdit.setPhoneNumber(displayUserPanel.getPhoneField().getText());
-                userToEdit.setType(userTypeFromComboBox(displayUserPanel));
-                //MORE VALIDATIONS TO BE ADDED
-                displayUserPanel.resetAction();
-                fetchUsers(usersPanel.usersTableModel, isShownPin(usersPanel.usersTableModel));
+                    && isCorrectPinPattern(displayUserPanel.getPinField().getText())) {
+                isValid = true;
             }
+        }else {
+            isValid = true;
+        }
+        if(userTypeFromComboBox(displayUserPanel) == null) {
+            isValid = false;
+        }
+        if(isValid) {
+            userToEdit.setName(displayUserPanel.getNameField().getText());
+            userToEdit.setPinCode(displayUserPanel.getPinField().getText());
+            userToEdit.setPhoneNumber(displayUserPanel.getPhoneField().getText());
+            userToEdit.setType(userTypeFromComboBox(displayUserPanel));
+            displayUserPanel.resetAction();
+            fetchUsers(usersPanel.usersTableModel, isShownPin(usersPanel.usersTableModel));
         }
     }
 
@@ -330,7 +330,6 @@ public class BarDataProvider {
     }
 
     public boolean isShownPin(DefaultTableModel usersTableModel) {
-        //try {return !(usersTable.getModel().getValueAt(0,1).equals("****"));
         try {
             return !(usersTableModel.getValueAt(0, 1).equals("****"));
         } catch (Exception ignored) {

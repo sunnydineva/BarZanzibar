@@ -2,7 +2,6 @@ package screens;
 
 import frames.BarFrame;
 import models.UserType;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -13,7 +12,6 @@ public class LoginPanel extends BasePanel implements KeyListener, MouseListener 
     public JTextField pinField;
     public JButton loginButton;
     public String loginErrorMsg;
-
 
     public LoginPanel(BarFrame frame) {
         super(frame);
@@ -61,7 +59,6 @@ public class LoginPanel extends BasePanel implements KeyListener, MouseListener 
             showError(loginErrorMsg);
         }
     }
-
 
     public void englishLanguage() {
         loginErrorMsg = "Wrong password! Please enter your password again!";

@@ -296,27 +296,22 @@ public class OrdersPanel extends BasePanel {
 
     public void minusAction() {
         if (!isValidPlusMinus()) return;
-
         Product product = currentlySelectedProduct();
         int currentlySelectedRow = productsTable.getSelectedRow();
-
         if (isLastProduct(product)) {
-            removeProduct(product);
+            removeProduct();
             currentlySelectedRow = nextValidRow(productsTable, currentlySelectedRow);
         } else {
             product.setQuantity(product.getQuantity() - 1);
         }
-
         fetchTablesAndSelectOrder(currentlySelectedOrder());
         selectRow(productsTable, currentlySelectedRow);
     }
 
     public boolean isValidPlusMinus() {
-        //if (ordersTable.getSelectedRow() < 0) {
         if (isNoSelectedRow(ordersTable)) {
             showError(plusMinusOrderErrorMessage);
             return false;
-            //} else if (productsTable.getSelectedRow() < 0) {
         } else if (isNoSelectedRow(productsTable)) {
             showError(plusMinusProductErrorMessage);
             return false;
@@ -324,7 +319,7 @@ public class OrdersPanel extends BasePanel {
         return true;
     }
 
-    public void removeProduct(Product product) {
+    public void removeProduct() {
         currentlySelectedOrder().getOrderProducts().remove(productsTable.getSelectedRow());
     }
 
@@ -370,7 +365,6 @@ public class OrdersPanel extends BasePanel {
         if (table.getRowCount() != 0) currentlyCreatedTableRow = table.getRowCount() - 1;
         table.setRowSelectionInterval(currentlyCreatedTableRow, currentlyCreatedTableRow);
     }
-
     /* end of selection checks */
 
     public void fetchTablesAndSelectOrder(Order order) {
@@ -392,7 +386,6 @@ public class OrdersPanel extends BasePanel {
             discount = askDiscount();
         }
         currentlySelectedOrder().setPercentDiscount(discount);
-
         int currentlySelectedRow = ordersTable.getSelectedRow();
         frame.dataProvider.fetchOrders(ordersTableModel, selectedTableNumber);
         ordersTable.setRowSelectionInterval(currentlySelectedRow, currentlySelectedRow);
@@ -425,7 +418,6 @@ public class OrdersPanel extends BasePanel {
         int currentlySelectedOrderRow = ordersTable.getSelectedRow();
         return Integer.parseInt((String) ordersTable.getModel().getValueAt(currentlySelectedOrderRow, 0)) - 1;
     }
-
 
     public void showProductsForOrder() {
         if (ordersTable.getSelectedRow() > -1) {
@@ -469,7 +461,7 @@ public class OrdersPanel extends BasePanel {
         productsTableModel.setColumnIdentifiers(productCols);
         tableCellRenderer(ordersTable);
         tableCellRenderer(productsTable);
-
+        repaint();
     }
 
     public void englishLanguage() {
@@ -498,7 +490,6 @@ public class OrdersPanel extends BasePanel {
         productsTableModel.setColumnIdentifiers(productCols);
         tableCellRenderer(ordersTable);
         tableCellRenderer(productsTable);
-
         repaint();
     }
 

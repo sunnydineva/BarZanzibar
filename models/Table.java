@@ -13,10 +13,6 @@ public class Table {
         return tableNumber;
     }
 
-    public void setTableNumber(int tableNumber) {
-        this.tableNumber = tableNumber;
-    }
-
     public boolean isOccupied() {
         return isOccupied;
     }

@@ -20,15 +20,11 @@ public class BasePanel extends JPanel {
     public BasePanel(BarFrame frame){
         this.frame = frame;
         this.language = frame.language;
-
         setLayout(null);
         setBackground(Color.gray);
-
         elementWidth = (frame.getWidth()) / 3;
         elementHeight = 40; //buttons not more than 40 height
-
         initializeBaseButtons();
-
         if (language == Language.BULGARIAN) {
             baseBulgarianLanguage();
         } else baseEnglishLanguage();
@@ -111,6 +107,5 @@ public class BasePanel extends JPanel {
         frame.dataProvider.userNotSelectedErrorMessage = "Моля изберете потребител";
         frame.dataProvider.deleteUserConfirmationMessage = "Моля изберете потребител";
         frame.dataProvider.currentUserErrorMessage = "Не може да изтриете текущия потебител";
-
     }
 }

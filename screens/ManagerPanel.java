@@ -1,11 +1,9 @@
 package screens;
 
 import frames.BarFrame;
-import models.Language;
 import javax.swing.*;
 
 public class ManagerPanel extends BasePanel {
-
     public JButton tableButton;
     public JButton userButton;
 

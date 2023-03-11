@@ -1,4 +1,4 @@
-# **SunnyBarZanzibar2022 Management Application**
+# **BarZanzibar Management Application**
 
 ## **Features**
 - Login with a unique PIN for each employee

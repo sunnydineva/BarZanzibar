@@ -5,8 +5,7 @@
 - Create and edit employee accounts
 - Take orders and assign them to tables
 - Calculate and apply discounts on orders
-- View order history for each table
-- Search for specific orders or employees
+- Search for specific employee
 - Available at Bulgarian and English
 
 ## **Usage**
